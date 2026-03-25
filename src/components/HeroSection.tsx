@@ -40,7 +40,7 @@ export default function HeroSection() {
         <motion.div {...fadeUp(0.1)}>
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-muted text-brand-pink text-sm font-semibold mb-6 border border-brand-pink/20">
             <Sparkles className="w-3.5 h-3.5" />
-            Postres Premium · Costa Rica
+            Postres deliciosos · Turrialba, Nuevos Horizontes
           </span>
         </motion.div>
 
