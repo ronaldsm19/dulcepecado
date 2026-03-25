@@ -9,7 +9,7 @@ interface ProductImageCarouselProps {
   alt: string;
   className?: string;
   sizes?: string;
-  /** Milisegundos entre cada cambio automático. Default: 60000 (1 minuto) */
+  /** Milisegundos entre cada cambio automático. Default: 20000 (20 segundos) */
   intervalMs?: number;
   showArrows?: boolean;
   onCurrentChange?: (index: number) => void;
@@ -20,7 +20,7 @@ export default function ProductImageCarousel({
   alt,
   className = "object-cover",
   sizes,
-  intervalMs = 60_000,
+  intervalMs = 20_000,
   showArrows = false,
   onCurrentChange,
 }: ProductImageCarouselProps) {

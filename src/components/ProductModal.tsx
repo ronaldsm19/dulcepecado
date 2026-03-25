@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, ZoomIn } from "lucide-react";
+import { X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -86,25 +86,56 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
           </div>
         </div>
 
-        {/* ── Lightbox — muestra la imagen activa del carrusel ── */}
+        {/* ── Lightbox — muestra la imagen activa con navegación ── */}
         {lightboxOpen && (
           <div
             className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
             onClick={() => setLightboxOpen(false)}
           >
+            {/* Cerrar */}
             <button
-              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 rounded-full p-2.5 transition-colors"
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 rounded-full p-2.5 transition-colors z-10"
               onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
             >
               <X className="w-6 h-6 text-white" />
             </button>
+
+            {/* Flecha izquierda */}
+            {allImages.length > 1 && (
+              <button
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 rounded-full p-3 transition-colors z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+                }}
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+            )}
+
+            {/* Imagen */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={allImages[currentImageIndex] ?? product.image}
               alt={product.name}
-              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
+
+            {/* Flecha derecha */}
+            {allImages.length > 1 && (
+              <button
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 rounded-full p-3 transition-colors z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
+                }}
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </button>
+            )}
+
+            {/* Contador */}
             {allImages.length > 1 && (
               <p className="absolute bottom-6 text-white/50 text-xs">
                 {currentImageIndex + 1} / {allImages.length}
