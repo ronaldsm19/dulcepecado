@@ -78,10 +78,10 @@ export default function AdminFinancesPage() {
   })) ?? [];
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-brand text-3xl font-bold text-brand-dark">Finanzas</h1>
+          <h1 className="font-brand text-2xl md:text-3xl font-bold text-brand-dark">Finanzas</h1>
           <p className="text-brand-dark/50 text-sm mt-1">Análisis de ingresos y gastos</p>
         </div>
         <div className="flex gap-2">

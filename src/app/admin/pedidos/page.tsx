@@ -87,16 +87,16 @@ export default function AdminOrdersPage() {
                            orders.filter((o) => !o.paid);
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-brand text-3xl font-bold text-brand-dark">Pedidos</h1>
+          <h1 className="font-brand text-2xl md:text-3xl font-bold text-brand-dark">Pedidos</h1>
           <p className="text-brand-dark/50 text-sm mt-1">
             {paidCount} pagados · {pendingCount} pendientes
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => setShowForm(true)} className="shrink-0">
           <Plus className="w-4 h-4 mr-1" /> Nuevo pedido
         </Button>
       </div>

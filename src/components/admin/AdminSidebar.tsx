@@ -9,17 +9,18 @@ import {
   Receipt,
   TrendingUp,
   LogOut,
+  X,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/admin",          label: "Dashboard",  icon: LayoutDashboard },
-  { href: "/admin/productos", label: "Productos",  icon: Package },
-  { href: "/admin/pedidos",   label: "Pedidos",    icon: ShoppingBag },
-  { href: "/admin/gastos",    label: "Gastos",     icon: Receipt },
-  { href: "/admin/finanzas",  label: "Finanzas",   icon: TrendingUp },
+  { href: "/admin",           label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/pedidos",   label: "Pedidos",   icon: ShoppingBag },
+  { href: "/admin/gastos",    label: "Gastos",    icon: Receipt },
+  { href: "/admin/finanzas",  label: "Finanzas",  icon: TrendingUp },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -32,9 +33,20 @@ export default function AdminSidebar() {
   return (
     <aside className="w-60 min-h-screen bg-brand-dark flex flex-col">
       {/* Brand */}
-      <div className="px-6 py-6 border-b border-white/10">
-        <p className="font-brand text-xl font-bold gradient-text">Dulce Pecado</p>
-        <p className="text-white/40 text-xs mt-0.5">Panel de administración</p>
+      <div className="px-6 py-6 border-b border-white/10 flex items-center justify-between">
+        <div>
+          <p className="font-brand text-xl font-bold gradient-text">Dulce Pecado</p>
+          <p className="text-white/40 text-xs mt-0.5">Panel de administración</p>
+        </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            aria-label="Cerrar menú"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Nav */}

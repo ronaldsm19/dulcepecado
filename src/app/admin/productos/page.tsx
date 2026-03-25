@@ -69,13 +69,13 @@ export default function AdminProductsPage() {
   function openEdit(p: ProductRow) { setEditing(p); setShowForm(true); }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-8 space-y-6">
+      <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-brand text-3xl font-bold text-brand-dark">Productos</h1>
+          <h1 className="font-brand text-2xl md:text-3xl font-bold text-brand-dark">Productos</h1>
           <p className="text-brand-dark/50 text-sm mt-1">{products.length} productos en catálogo</p>
         </div>
-        <Button onClick={openCreate}>
+        <Button onClick={openCreate} className="shrink-0">
           <Plus className="w-4 h-4 mr-1" /> Nuevo producto
         </Button>
       </div>

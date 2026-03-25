@@ -47,9 +47,9 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8">
       <div>
-        <h1 className="font-brand text-3xl font-bold text-brand-dark">Dashboard</h1>
+        <h1 className="font-brand text-2xl md:text-3xl font-bold text-brand-dark">Dashboard</h1>
         <p className="text-brand-dark/50 text-sm mt-1">Resumen del mes actual</p>
       </div>
 
