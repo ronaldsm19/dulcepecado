@@ -17,15 +17,21 @@ interface ProductFormProps {
 
 export default function ProductForm({ initial, onSave, onCancel, saving }: ProductFormProps) {
   const [form, setForm] = useState({
-    name:        initial?.name        ?? "",
-    description: initial?.description ?? "",
-    price:       initial?.price?.toString() ?? "",
-    image:       initial?.image       ?? "",
-    category:    initial?.category    ?? "gelatina",
-    available:   initial?.available   ?? true,
+    name:         initial?.name         ?? "",
+    description:  initial?.description  ?? "",
+    price:        initial?.price?.toString() ?? "",
+    image:        initial?.image        ?? "",
+    category:     initial?.category     ?? "gelatina",
+    available:    initial?.available    ?? true,
+    featured:     initial?.featured     ?? false,
+    delivery:     initial?.delivery     ?? false,
+    deliveryNote: initial?.deliveryNote ?? "",
   });
   const [toppings, setToppings]           = useState<string[]>(initial?.toppings ?? []);
   const [toppingInput, setToppingInput]   = useState("");
+  const [offers, setOffers]               = useState<{ qty: string; price: string }[]>(
+    initial?.offers?.map(o => ({ qty: String(o.qty), price: String(o.price) })) ?? []
+  );
   const [extraImages, setExtraImages]     = useState<string[]>(initial?.images ?? []);
   const [uploading, setUploading]         = useState(false);
   const [uploadingExtra, setUploadingExtra] = useState(false);
@@ -127,7 +133,18 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
       setUploadError("Debes subir una imagen para el producto");
       return;
     }
-    await onSave({ ...form, price: Number(form.price), toppings, images: extraImages });
+    await onSave({
+      ...form,
+      price: Number(form.price),
+      toppings,
+      images: extraImages,
+      delivery: form.delivery,
+      deliveryNote: form.deliveryNote,
+      offers: offers
+        .filter(o => o.qty && o.price)
+        .map(o => ({ qty: Number(o.qty), price: Number(o.price) }))
+        .sort((a, b) => a.qty - b.qty),
+    });
   }
 
   return (
@@ -340,6 +357,63 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
         </div>
       </div>
 
+      {/* ── Ofertas por cantidad ── */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-medium text-brand-dark">
+            🏷️ Ofertas por cantidad
+            <span className="text-brand-dark/40 font-normal ml-1">(opcional)</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => setOffers(prev => [...prev, { qty: "", price: "" }])}
+            className="text-xs text-brand-pink hover:text-brand-orange font-medium flex items-center gap-1 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" /> Agregar oferta
+          </button>
+        </div>
+        <p className="text-xs text-brand-dark/40 mb-2">
+          Ej: 4 unidades por ₡5400 · El precio unitario regular se usa como referencia
+        </p>
+        {offers.length > 0 && (
+          <div className="space-y-2">
+            {offers.map((offer, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div className="flex-1 flex items-center gap-2">
+                  <div className="w-24">
+                    <input
+                      type="number" min={1} placeholder="Cant."
+                      value={offer.qty}
+                      onChange={e => setOffers(prev => prev.map((o, i) => i === idx ? { ...o, qty: e.target.value } : o))}
+                      className="w-full border border-brand-muted rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-pink"
+                    />
+                  </div>
+                  <span className="text-brand-dark/40 text-sm">×</span>
+                  <div className="flex-1">
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-brand-dark/50">₡</span>
+                      <input
+                        type="number" min={0} placeholder="Precio oferta"
+                        value={offer.price}
+                        onChange={e => setOffers(prev => prev.map((o, i) => i === idx ? { ...o, price: e.target.value } : o))}
+                        className="w-full border border-brand-muted rounded-xl pl-7 pr-3 py-2 text-sm focus:outline-none focus:border-brand-pink"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOffers(prev => prev.filter((_, i) => i !== idx))}
+                  className="p-1.5 text-brand-dark/30 hover:text-red-500 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Disponible */}
       <div className="flex items-center gap-2">
         <input
@@ -350,6 +424,45 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
         />
         <label htmlFor="available" className="text-sm text-brand-dark">Disponible para la venta</label>
       </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox" id="featured"
+          checked={form.featured}
+          onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+          className="rounded"
+        />
+        <label htmlFor="featured" className="text-sm text-brand-dark">
+          🔥 Destacar en "Más Vendidos"
+        </label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox" id="delivery"
+          checked={form.delivery}
+          onChange={(e) => setForm({ ...form, delivery: e.target.checked })}
+          className="rounded"
+        />
+        <label htmlFor="delivery" className="text-sm text-brand-dark">
+          🚗 Envío disponible
+        </label>
+      </div>
+
+      {form.delivery && (
+        <div>
+          <label className="block text-sm font-medium text-brand-dark mb-1">
+            Nota de envío / horarios
+          </label>
+          <textarea
+            rows={3}
+            value={form.deliveryNote}
+            onChange={(e) => setForm({ ...form, deliveryNote: e.target.value })}
+            placeholder="Ej: Disponibles sábados y domingos. Envíos con costo adicional según distancia..."
+            className="w-full border border-brand-muted rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-pink resize-none"
+          />
+        </div>
+      )}
 
       {/* Acciones */}
       <div className="flex gap-3 pt-2">

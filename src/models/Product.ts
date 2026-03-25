@@ -11,6 +11,10 @@ export interface IProduct {
   images: string[];        // imágenes adicionales (carrusel)
   category: "gelatina" | "apretado" | "especial";
   available: boolean;
+  featured: boolean;       // destacado en "Más vendidos"
+  delivery: boolean;       // si tiene envío disponible
+  deliveryNote: string;    // nota de horarios/costo de envío
+  offers: { qty: number; price: number }[];  // ofertas por volumen
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +55,22 @@ const ProductSchema = new Schema(
     available: {
       type: Boolean,
       default: true,
+    },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
+    delivery: {
+      type: Boolean,
+      default: false,
+    },
+    deliveryNote: {
+      type: String,
+      default: "",
+    },
+    offers: {
+      type: [{ qty: { type: Number, required: true }, price: { type: Number, required: true } }],
+      default: [],
     },
   },
   { timestamps: true }

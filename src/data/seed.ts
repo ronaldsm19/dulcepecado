@@ -5,6 +5,10 @@ export interface SeedProduct {
   toppings: string[];
   image: string;
   images?: string[];
+  featured?: boolean;
+  delivery?: boolean;
+  deliveryNote?: string;
+  offers?: { qty: number; price: number }[];
   category: "gelatina" | "apretado" | "especial";
   available: boolean;
 }

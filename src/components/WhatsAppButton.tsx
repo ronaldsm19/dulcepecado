@@ -10,33 +10,72 @@ interface WhatsAppButtonProps {
   className?: string;
 }
 
-function buildWhatsAppMessage(
+export function buildWhatsAppMessage(
   product?: WhatsAppButtonProps["product"],
   selectedToppings?: string[],
-  finalPrice?: number
+  finalPrice?: number,
+  quantity?: number,
+  itemToppings?: string[][],
 ): string {
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "50688888888";
   let msg: string;
 
   if (product) {
     const price = finalPrice ?? product.price;
-    const toppingLine =
-      selectedToppings && selectedToppings.length > 0
-        ? `*Toppings elegidos:* ${selectedToppings.join(", ")}`
-        : null;
+    const qty   = quantity ?? 1;
 
-    const lines = [
-      `Hola! Me interesa hacer un pedido de *Dulce Pecado* 🍮`,
-      ``,
-      `*Producto:* ${product.name}`,
-      `*Precio:* ₡${price.toLocaleString("es-CR")}`,
-      toppingLine,
-      ``,
-      `¿Podría darme más información y disponibilidad? Gracias! 😊`,
-    ].filter((l) => l !== null);
-    msg = lines.join("\n");
+    if (qty > 1 && itemToppings && itemToppings.length > 1) {
+      // Multi-item order
+      const offers = [...(product.offers ?? [])].sort((a, b) => a.qty - b.qty);
+      const activeOffer = offers.find(o => o.qty === qty);
+      const offerLabel  = activeOffer
+        ? ` · Oferta ${activeOffer.qty}×₡${activeOffer.price.toLocaleString("es-CR")}`
+        : "";
+      const FREE_TOPPINGS = 2;
+      const EXTRA_PRICE   = 150;
+
+      const itemLines = itemToppings.map((tops, i) => {
+        const extraCount = Math.max(0, tops.length - FREE_TOPPINGS);
+        const extraLabel = extraCount > 0
+          ? ` (+₡${(extraCount * EXTRA_PRICE).toLocaleString("es-CR")})`
+          : "";
+        const toppingStr = tops.length > 0 ? tops.join(", ") : "sin toppings";
+        return `• ${product.name.split(" ").slice(-1)[0]} #${i + 1}: ${toppingStr}${extraLabel}`;
+      });
+
+      const lines = [
+        `Hola! Me interesa hacer un pedido de *Dulce Pecado* 🍮`,
+        ``,
+        `*Producto:* ${product.name}`,
+        `*Cantidad:* ${qty}${offerLabel}`,
+        `*Total:* ₡${price.toLocaleString("es-CR")}`,
+        ``,
+        `*Detalle por unidad:*`,
+        ...itemLines,
+        ``,
+        `¿Podría confirmar disponibilidad? Gracias! 😊`,
+      ];
+      msg = lines.join("\n");
+    } else {
+      // Single item order (original behavior)
+      const toppingLine =
+        selectedToppings && selectedToppings.length > 0
+          ? `*Toppings elegidos:* ${selectedToppings.join(", ")}`
+          : null;
+
+      const lines = [
+        `Hola! Me interesa hacer un pedido de *Dulce Pecado* 🍮`,
+        ``,
+        `*Producto:* ${product.name}`,
+        `*Precio:* ₡${price.toLocaleString("es-CR")}`,
+        toppingLine,
+        ``,
+        `¿Podría darme más información y disponibilidad? Gracias! 😊`,
+      ].filter((l) => l !== null);
+      msg = lines.join("\n");
+    }
   } else {
-    msg = `Hola! Me interesa hacer un pedido de *Dulce Pecado* 🍮\n\n¿Podría darme más información sobre sus productos y disponibilidad? Gracias!`;
+    msg = `Hola! Quiero hacer un pedido 😊`;
   }
 
   return `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
@@ -47,14 +86,18 @@ export function WhatsAppInlineButton({
   product,
   selectedToppings,
   finalPrice,
+  quantity,
+  itemToppings,
   className,
 }: {
   product: WhatsAppButtonProps["product"];
   selectedToppings?: string[];
   finalPrice?: number;
+  quantity?: number;
+  itemToppings?: string[][];
   className?: string;
 }) {
-  const url = buildWhatsAppMessage(product, selectedToppings, finalPrice);
+  const url = buildWhatsAppMessage(product, selectedToppings, finalPrice, quantity, itemToppings);
 
   return (
     <Button
@@ -88,14 +131,13 @@ export default function WhatsAppButton({ floating }: WhatsAppButtonProps) {
       whileTap={{ scale: 0.95 }}
       title="Contáctanos por WhatsApp"
     >
-      {/* Pulse ring */}
       <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />
       <WhatsAppIcon size={26} />
     </motion.a>
   );
 }
 
-function WhatsAppIcon({ size = 22 }: { size?: number }) {
+export function WhatsAppIcon({ size = 22 }: { size?: number }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

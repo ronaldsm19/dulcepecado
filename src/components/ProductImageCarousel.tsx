@@ -27,10 +27,15 @@ export default function ProductImageCarousel({
   const [current, setCurrent] = useState(0);
   const count = images.length;
 
+  // Notificar al padre cuando current cambia (sin hacerlo dentro de un setter)
+  useEffect(() => {
+    onCurrentChange?.(current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current]);
+
   // Resetear cuando cambia el producto (primer src cambia)
   useEffect(() => {
     setCurrent(0);
-    onCurrentChange?.(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images[0]]);
 
@@ -38,19 +43,14 @@ export default function ProductImageCarousel({
   useEffect(() => {
     if (count <= 1) return;
     const id = setInterval(() => {
-      setCurrent((prev) => {
-        const next = (prev + 1) % count;
-        onCurrentChange?.(next);
-        return next;
-      });
+      setCurrent((prev) => (prev + 1) % count);
     }, intervalMs);
     return () => clearInterval(id);
-  }, [count, intervalMs, onCurrentChange]);
+  }, [count, intervalMs]);
 
   function goTo(index: number, e?: React.MouseEvent) {
     e?.stopPropagation();
     setCurrent(index);
-    onCurrentChange?.(index);
   }
 
   function go(delta: number, e: React.MouseEvent) {

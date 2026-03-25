@@ -8,16 +8,18 @@ import {
   ShoppingBag,
   Receipt,
   TrendingUp,
+  Settings,
   LogOut,
   X,
 } from "lucide-react";
 
 const navItems = [
-  { href: "/admin",           label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/productos", label: "Productos", icon: Package },
-  { href: "/admin/pedidos",   label: "Pedidos",   icon: ShoppingBag },
-  { href: "/admin/gastos",    label: "Gastos",    icon: Receipt },
-  { href: "/admin/finanzas",  label: "Finanzas",  icon: TrendingUp },
+  { href: "/admin",                label: "Dashboard",     icon: LayoutDashboard },
+  { href: "/admin/productos",      label: "Productos",     icon: Package },
+  { href: "/admin/pedidos",        label: "Pedidos",       icon: ShoppingBag },
+  { href: "/admin/gastos",         label: "Gastos",        icon: Receipt },
+  { href: "/admin/finanzas",       label: "Finanzas",      icon: TrendingUp },
+  { href: "/admin/configuracion",  label: "Configuración", icon: Settings },
 ];
 
 export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
