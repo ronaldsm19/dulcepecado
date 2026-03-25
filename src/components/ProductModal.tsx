@@ -103,7 +103,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
             {/* Flecha izquierda */}
             {allImages.length > 1 && (
               <button
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 rounded-full p-3 transition-colors z-10"
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full p-3 transition-all z-10 shadow-lg" style={{background: "linear-gradient(135deg, #f472b6, #fb923c)"}}
                 onClick={(e) => {
                   e.stopPropagation();
                   setCurrentImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
@@ -125,7 +125,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
             {/* Flecha derecha */}
             {allImages.length > 1 && (
               <button
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 rounded-full p-3 transition-colors z-10"
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-3 transition-all z-10 shadow-lg" style={{background: "linear-gradient(135deg, #f472b6, #fb923c)"}}
                 onClick={(e) => {
                   e.stopPropagation();
                   setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
