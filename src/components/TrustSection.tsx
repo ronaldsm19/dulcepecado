@@ -16,8 +16,8 @@ const TRUST_ITEMS = [
   },
   {
     icon: <Clock className="w-7 h-7 text-white" />,
-    title: "Preparados frescos del día",
-    subtitle: "Cada pedido se prepara el mismo día de entrega",
+    title: "Ingredientes frescos",
+    subtitle: "Usamos ingredientes frescos y de calidad en cada postre",
   },
 ];
 

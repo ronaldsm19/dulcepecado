@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import ProductModal from "@/components/ProductModal";
 import ProductImageCarousel from "@/components/ProductImageCarousel";
-import { buildWhatsAppMessage } from "@/components/WhatsAppButton";
 import { SeedProduct } from "@/data/seed";
 import { Eye } from "lucide-react";
 
@@ -113,37 +112,17 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-between mt-auto pt-2 border-t border-brand-muted gap-2">
-            <span className="text-lg font-bold gradient-text font-brand shrink-0">
+          <div className="flex items-center justify-between mt-auto pt-2 border-t border-brand-muted">
+            <span className="text-xl font-bold gradient-text font-brand">
               ₡{product.price.toLocaleString("es-CR")}
             </span>
-            <div className="flex gap-1.5">
-              {product.toppings.length === 0 ? (
-                <a
-                  href={buildWhatsAppMessage(product)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Button variant="whatsapp" size="sm">Pedir este</Button>
-                </a>
-              ) : (
-                <Button
-                  variant="whatsapp"
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); }}
-                >
-                  Pedir este
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); }}
-              >
-                Ver más
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); }}
+            >
+              Ver más
+            </Button>
           </div>
         </div>
       </motion.article>
