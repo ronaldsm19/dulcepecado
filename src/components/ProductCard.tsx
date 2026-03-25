@@ -68,6 +68,17 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {cat.label}
           </span>
 
+          {/* Delivery badge */}
+          <span
+            className={`absolute top-3 right-3 px-2 py-0.5 rounded-full text-xs font-bold z-10 ${
+              product.delivery
+                ? "bg-emerald-500/90 text-white"
+                : "bg-brand-dark/60 text-white/80"
+            }`}
+          >
+            {product.delivery ? "🚗 Con envío" : "🏪 Retiro"}
+          </span>
+
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-brand-dark/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
             <motion.div

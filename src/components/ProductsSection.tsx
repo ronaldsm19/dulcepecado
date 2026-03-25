@@ -114,9 +114,6 @@ export default function ProductsSection({ products }: ProductsSectionProps) {
             transition={{ delay: 0.35 }}
             className="flex flex-wrap justify-center gap-2 mt-5"
           >
-            <span className="px-3 py-1.5 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/20 text-sm font-semibold">
-              ⚠️ Cupos limitados por día
-            </span>
             <span className="px-3 py-1.5 rounded-full bg-brand-pink/10 text-brand-pink border border-brand-pink/20 text-sm font-semibold">
               📦 Pedidos por encargo
             </span>

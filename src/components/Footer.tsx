@@ -35,7 +35,7 @@ export default function Footer() {
             <p className="text-white/50 text-sm leading-relaxed">
               El placer en cada cucharada.
               <br />
-              Postres artesanales premium.
+              Postres artesanales.
             </p>
             {/* Social icons */}
             <div className="flex gap-3 mt-5">

@@ -65,8 +65,31 @@ function LocationRow({
   );
 }
 
-export default function AboutSection() {
+interface AboutSectionProps {
+  aboutData?: {
+    title: string;
+    paragraph1: string;
+    paragraph2: string;
+    images: string[];
+  };
+}
+
+const DEFAULT_IMAGES = [
+  "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&q=80&fit=crop",
+  "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400&q=80&fit=crop",
+  "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80&fit=crop",
+  "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=400&q=80&fit=crop",
+];
+
+export default function AboutSection({ aboutData }: AboutSectionProps) {
   const [locationOpen, setLocationOpen] = useState(false);
+
+  const title = aboutData?.title ?? "Hechos con amor en Turrialba";
+  const paragraph1 = aboutData?.paragraph1 ?? "Dulce Pecado nació de un momento espontáneo, con muchas ganas de crear algo especial.";
+  const paragraph2 = aboutData?.paragraph2 ?? "Hoy, cada postre y cada apretado gourmet está hecho con amor, buscando convertir lo simple en algo delicioso 🤍✨";
+  const images = (aboutData?.images?.length ? aboutData.images : DEFAULT_IMAGES).map(
+    (url, i) => ({ img: url || DEFAULT_IMAGES[i], rotate: ["-2deg", "2deg", "1.5deg", "-1.5deg"][i] })
+  );
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "50688888888";
   const specialOrderMsg = encodeURIComponent(
@@ -84,18 +107,11 @@ export default function AboutSection() {
               Nuestra historia
             </span>
             <h2 className="font-brand text-4xl md:text-5xl font-bold text-brand-dark mt-3 mb-6 leading-tight">
-              Hechos con amor en{" "}
-              <span className="gradient-text">Turrialba</span>
+              {title}
             </h2>
             <div className="space-y-4 text-brand-dark/65 leading-relaxed">
-              <p>
-                Dulce Pecado nació de un momento espontáneo, con muchas ganas
-                de crear algo especial.
-              </p>
-              <p>
-                Hoy, cada postre y cada apretado gourmet está hecho con amor,
-                buscando convertir lo simple en algo delicioso 🤍✨
-              </p>
+              <p>{paragraph1}</p>
+              <p>{paragraph2}</p>
             </div>
           </div>
 
@@ -106,24 +122,7 @@ export default function AboutSection() {
 
             {/* Decorative grid */}
             <div className="relative grid grid-cols-2 gap-4">
-              {[
-                {
-                  img: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&q=80&fit=crop",
-                  rotate: "-2deg",
-                },
-                {
-                  img: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400&q=80&fit=crop",
-                  rotate: "2deg",
-                },
-                {
-                  img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80&fit=crop",
-                  rotate: "1.5deg",
-                },
-                {
-                  img: "https://images.unsplash.com/photo-1560008581-09826d1de69e?w=400&q=80&fit=crop",
-                  rotate: "-1.5deg",
-                },
-              ].map((item, i) => (
+              {images.map((item, i) => (
                 <div
                   key={i}
                   className="aspect-square rounded-2xl overflow-hidden shadow-lg card-shadow"
