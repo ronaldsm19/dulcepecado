@@ -5,6 +5,7 @@ export interface SeedProduct {
   toppings: string[];
   image: string;
   images?: string[];
+  featured?: boolean;
   category: "gelatina" | "apretado" | "especial";
   available: boolean;
 }

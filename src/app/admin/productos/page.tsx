@@ -108,7 +108,14 @@ export default function AdminProductsPage() {
                         />
                       </div>
                       <div>
-                        <p className="font-medium text-brand-dark">{p.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-brand-dark">{p.name}</p>
+                          {p.featured && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-brand-orange/10 text-brand-orange font-semibold shrink-0">
+                              🔥 Destacado
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-brand-dark/40 line-clamp-1">{p.description}</p>
                       </div>
                     </div>

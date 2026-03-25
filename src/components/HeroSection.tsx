@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Sparkles } from "lucide-react";
+import { buildWhatsAppMessage, WhatsAppIcon } from "@/components/WhatsAppButton";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
@@ -116,18 +117,42 @@ export default function HeroSection() {
 
         {/* Sub-tagline */}
         <motion.p
-          className="text-base text-brand-dark/40 mb-10 max-w-md mx-auto"
+          className="text-base md:text-lg text-brand-dark/60 mb-5 max-w-lg mx-auto leading-relaxed"
           {...fadeUp(0.45)}
         >
-          Gelatinas mosaico artesanales y apretados gourmet hechos con amor en Costa Rica 🇨🇷
+          Postres caseros en Turrialba 🍓 &nbsp;·&nbsp; Pedidos por encargo 📦 &nbsp;·&nbsp; Ordená fácil por WhatsApp 📲
         </motion.p>
+
+        {/* Urgency badges */}
+        <motion.div
+          className="flex flex-wrap justify-center gap-2 mb-8"
+          {...fadeUp(0.52)}
+        >
+          <span className="px-3 py-1.5 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/20 text-sm font-semibold">
+            ⚠️ Cupos limitados por día
+          </span>
+          <span className="px-3 py-1.5 rounded-full bg-brand-pink/10 text-brand-pink border border-brand-pink/20 text-sm font-semibold">
+            📦 Pedidos por encargo
+          </span>
+        </motion.div>
 
         {/* CTA buttons */}
         <motion.div
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          {...fadeUp(0.55)}
+          {...fadeUp(0.6)}
         >
+          <a
+            href={buildWhatsAppMessage()}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="whatsapp" size="lg" className="gap-2.5 px-8">
+              <WhatsAppIcon size={20} />
+              Ordenar por WhatsApp
+            </Button>
+          </a>
           <Button
+            variant="outline"
             size="lg"
             onClick={() =>
               document
@@ -136,17 +161,6 @@ export default function HeroSection() {
             }
           >
             Ver productos
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() =>
-              document
-                .getElementById("nosotros")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Nuestra historia
           </Button>
         </motion.div>
 

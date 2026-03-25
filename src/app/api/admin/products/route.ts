@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   await connectToDatabase();
   const body = await request.json();
 
-  const { name, description, price, toppings, image, category, available } = body;
+  const { name, description, price, toppings, image, images, category, available, featured } = body;
   if (!name || !description || !price || !image || !category) {
     return NextResponse.json({ error: "Faltan campos requeridos" }, { status: 400 });
   }
@@ -28,8 +28,11 @@ export async function POST(request: NextRequest) {
     name, description,
     price: Number(price),
     toppings: toppings ?? [],
-    image, category,
+    image,
+    images: images ?? [],
+    category,
     available: available ?? true,
+    featured: featured ?? false,
   });
 
   return NextResponse.json({ product }, { status: 201 });

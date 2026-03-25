@@ -107,6 +107,20 @@ export default function ProductsSection({ products }: ProductsSectionProps) {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="mt-4 mx-auto w-16 h-1 rounded-full gradient-bg"
           />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.35 }}
+            className="flex flex-wrap justify-center gap-2 mt-5"
+          >
+            <span className="px-3 py-1.5 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/20 text-sm font-semibold">
+              ⚠️ Cupos limitados por día
+            </span>
+            <span className="px-3 py-1.5 rounded-full bg-brand-pink/10 text-brand-pink border border-brand-pink/20 text-sm font-semibold">
+              📦 Pedidos por encargo
+            </span>
+          </motion.div>
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

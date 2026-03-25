@@ -11,6 +11,7 @@ export interface IProduct {
   images: string[];        // imágenes adicionales (carrusel)
   category: "gelatina" | "apretado" | "especial";
   available: boolean;
+  featured: boolean;       // destacado en "Más vendidos"
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +52,10 @@ const ProductSchema = new Schema(
     available: {
       type: Boolean,
       default: true,
+    },
+    featured: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

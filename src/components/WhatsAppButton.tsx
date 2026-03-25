@@ -10,7 +10,7 @@ interface WhatsAppButtonProps {
   className?: string;
 }
 
-function buildWhatsAppMessage(
+export function buildWhatsAppMessage(
   product?: WhatsAppButtonProps["product"],
   selectedToppings?: string[],
   finalPrice?: number
@@ -36,7 +36,7 @@ function buildWhatsAppMessage(
     ].filter((l) => l !== null);
     msg = lines.join("\n");
   } else {
-    msg = `Hola! Me interesa hacer un pedido de *Dulce Pecado* 🍮\n\n¿Podría darme más información sobre sus productos y disponibilidad? Gracias!`;
+    msg = `Hola! Quiero hacer un pedido 😊`;
   }
 
   return `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
@@ -95,7 +95,7 @@ export default function WhatsAppButton({ floating }: WhatsAppButtonProps) {
   );
 }
 
-function WhatsAppIcon({ size = 22 }: { size?: number }) {
+export function WhatsAppIcon({ size = 22 }: { size?: number }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

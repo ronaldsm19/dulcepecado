@@ -23,6 +23,7 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
     image:       initial?.image       ?? "",
     category:    initial?.category    ?? "gelatina",
     available:   initial?.available   ?? true,
+    featured:    initial?.featured    ?? false,
   });
   const [toppings, setToppings]           = useState<string[]>(initial?.toppings ?? []);
   const [toppingInput, setToppingInput]   = useState("");
@@ -349,6 +350,18 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
           className="rounded"
         />
         <label htmlFor="available" className="text-sm text-brand-dark">Disponible para la venta</label>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox" id="featured"
+          checked={form.featured}
+          onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+          className="rounded"
+        />
+        <label htmlFor="featured" className="text-sm text-brand-dark">
+          🔥 Destacar en "Más Vendidos"
+        </label>
       </div>
 
       {/* Acciones */}
