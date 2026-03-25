@@ -4,6 +4,7 @@ export interface SeedProduct {
   price: number;
   toppings: string[];
   image: string;
+  images?: string[];
   category: "gelatina" | "apretado" | "especial";
   available: boolean;
 }

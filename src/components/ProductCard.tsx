@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import ProductModal from "@/components/ProductModal";
+import ProductImageCarousel from "@/components/ProductImageCarousel";
 import { SeedProduct } from "@/data/seed";
 import { Eye } from "lucide-react";
 
@@ -55,22 +55,21 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       >
         {/* ── Image ── */}
         <div className="relative h-52 overflow-hidden">
-          <Image
-            src={product.image}
+          <ProductImageCarousel
+            images={[product.image, ...(product.images ?? [])]}
             alt={product.name}
-            fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
           {/* Category badge */}
           <span
-            className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold ${cat.color}`}
+            className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold z-10 ${cat.color}`}
           >
             {cat.label}
           </span>
 
           {/* Hover overlay */}
-          <div className="absolute inset-0 bg-brand-dark/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <div className="absolute inset-0 bg-brand-dark/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}

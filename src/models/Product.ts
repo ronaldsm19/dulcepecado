@@ -8,6 +8,7 @@ export interface IProduct {
   price: number;
   toppings: string[];
   image: string;
+  images: string[];        // imágenes adicionales (carrusel)
   category: "gelatina" | "apretado" | "especial";
   available: boolean;
   createdAt: Date;
@@ -37,6 +38,10 @@ const ProductSchema = new Schema(
     image: {
       type: String,
       required: [true, "La imagen es requerida"],
+    },
+    images: {
+      type: [String],
+      default: [],
     },
     category: {
       type: String,

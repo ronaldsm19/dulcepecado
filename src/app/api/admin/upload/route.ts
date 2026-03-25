@@ -88,3 +88,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Error al subir la imagen" }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  const session = await getSession(request);
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  try {
+    const { url } = await request.json();
+    if (!url) return NextResponse.json({ error: "URL requerida" }, { status: 400 });
+
+    const path = extractStoragePath(url);
+    if (!path) return NextResponse.json({ error: "URL inválida" }, { status: 400 });
+
+    const { error } = await supabaseAdmin.storage.from(STORAGE_BUCKET).remove([path]);
+    if (error) {
+      console.error("[upload DELETE] Supabase error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("[DELETE /api/admin/upload]", error);
+    return NextResponse.json({ error: "Error al eliminar la imagen" }, { status: 500 });
+  }
+}

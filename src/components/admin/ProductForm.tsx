@@ -4,7 +4,9 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { IProduct } from "@/models/Product";
-import { X, Plus, Upload, ImageIcon, Loader2 } from "lucide-react";
+import { X, Plus, Upload, ImageIcon, Loader2, Images } from "lucide-react";
+
+const MAX_EXTRA_IMAGES = 4;
 
 interface ProductFormProps {
   initial?: Partial<IProduct>;
@@ -22,11 +24,14 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
     category:    initial?.category    ?? "gelatina",
     available:   initial?.available   ?? true,
   });
-  const [toppings, setToppings]       = useState<string[]>(initial?.toppings ?? []);
-  const [toppingInput, setToppingInput] = useState("");
-  const [uploading, setUploading]     = useState(false);
-  const [uploadError, setUploadError] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [toppings, setToppings]           = useState<string[]>(initial?.toppings ?? []);
+  const [toppingInput, setToppingInput]   = useState("");
+  const [extraImages, setExtraImages]     = useState<string[]>(initial?.images ?? []);
+  const [uploading, setUploading]         = useState(false);
+  const [uploadingExtra, setUploadingExtra] = useState(false);
+  const [uploadError, setUploadError]     = useState("");
+  const fileInputRef      = useRef<HTMLInputElement>(null);
+  const extraFileInputRef = useRef<HTMLInputElement>(null);
 
   function addTopping() {
     const t = toppingInput.trim();
@@ -70,9 +75,45 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
       setUploadError("Error de conexión al subir la imagen");
     } finally {
       setUploading(false);
-      // Limpiar el input para permitir subir el mismo archivo de nuevo
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  }
+
+  async function handleExtraFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (extraImages.length >= MAX_EXTRA_IMAGES) return;
+
+    setUploadingExtra(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (res.ok) {
+        setExtraImages((prev) => [...prev, data.url]);
+      } else {
+        setUploadError(data.error ?? "Error al subir imagen adicional");
+      }
+    } catch {
+      setUploadError("Error de conexión al subir imagen adicional");
+    } finally {
+      setUploadingExtra(false);
+      if (extraFileInputRef.current) extraFileInputRef.current.value = "";
+    }
+  }
+
+  async function removeExtraImage(url: string) {
+    setExtraImages((prev) => prev.filter((u) => u !== url));
+    // Eliminar de Supabase en background
+    fetch("/api/admin/upload", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    }).catch(console.error);
   }
 
   function clearImage() {
@@ -86,7 +127,7 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
       setUploadError("Debes subir una imagen para el producto");
       return;
     }
-    await onSave({ ...form, price: Number(form.price), toppings });
+    await onSave({ ...form, price: Number(form.price), toppings, images: extraImages });
   }
 
   return (
@@ -138,14 +179,13 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
         </div>
       </div>
 
-      {/* ── Imagen ── */}
+      {/* ── Imagen principal ── */}
       <div>
         <label className="block text-sm font-medium text-brand-dark mb-2">
-          Imagen del producto *
+          Imagen principal *
         </label>
 
         {form.image ? (
-          /* Preview de imagen cargada */
           <div className="relative rounded-xl overflow-hidden border border-brand-muted bg-brand-muted/30">
             <div className="relative w-full h-40">
               <Image
@@ -176,7 +216,6 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
             </div>
           </div>
         ) : (
-          /* Zona de carga */
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -202,7 +241,6 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
           </button>
         )}
 
-        {/* Input file oculto */}
         <input
           ref={fileInputRef}
           type="file"
@@ -214,6 +252,64 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
         {uploadError && (
           <p className="mt-1.5 text-xs text-red-500">{uploadError}</p>
         )}
+      </div>
+
+      {/* ── Imágenes adicionales (carrusel) ── */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <label className="block text-sm font-medium text-brand-dark flex items-center gap-1.5">
+            <Images className="w-4 h-4 text-brand-pink" />
+            Imágenes adicionales
+            <span className="text-brand-dark/40 font-normal">(opcional · carrusel)</span>
+          </label>
+          <span className="text-xs text-brand-dark/40">{extraImages.length}/{MAX_EXTRA_IMAGES}</span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-2">
+          {/* Imágenes subidas */}
+          {extraImages.map((url, i) => (
+            <div key={url} className="relative aspect-square rounded-xl overflow-hidden border border-brand-muted group">
+              <Image src={url} alt={`Extra ${i + 1}`} fill className="object-cover" sizes="100px" />
+              <button
+                type="button"
+                onClick={() => removeExtraImage(url)}
+                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
+          ))}
+
+          {/* Botón agregar */}
+          {extraImages.length < MAX_EXTRA_IMAGES && (
+            <button
+              type="button"
+              onClick={() => extraFileInputRef.current?.click()}
+              disabled={uploadingExtra}
+              className="aspect-square rounded-xl border-2 border-dashed border-brand-muted hover:border-brand-pink/50 flex flex-col items-center justify-center gap-1 transition-colors disabled:opacity-50 bg-brand-muted/20 hover:bg-brand-pink/5"
+            >
+              {uploadingExtra ? (
+                <Loader2 className="w-5 h-5 text-brand-pink animate-spin" />
+              ) : (
+                <>
+                  <Plus className="w-5 h-5 text-brand-dark/40" />
+                  <span className="text-[10px] text-brand-dark/40">Agregar</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+
+        <input
+          ref={extraFileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="hidden"
+          onChange={handleExtraFileChange}
+        />
+        <p className="text-xs text-brand-dark/40 mt-1.5">
+          Se mostrarán en carrusel · cambian automáticamente cada 1 minuto
+        </p>
       </div>
 
       {/* Toppings */}
@@ -257,7 +353,7 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
 
       {/* Acciones */}
       <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={saving || uploading} className="flex-1">
+        <Button type="submit" disabled={saving || uploading || uploadingExtra} className="flex-1">
           {saving ? "Guardando..." : initial?._id ? "Actualizar producto" : "Crear producto"}
         </Button>
         <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
