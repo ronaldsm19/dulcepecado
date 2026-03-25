@@ -65,19 +65,19 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
       <DialogContent className="p-0 gap-0">
         {/* ── Product image / carousel ── */}
         <div
-          className="relative w-full h-56 overflow-hidden rounded-t-2xl cursor-zoom-in group"
+          className="relative w-full h-80 overflow-hidden rounded-t-2xl cursor-zoom-in group bg-brand-muted/30"
           onClick={() => setLightboxOpen(true)}
         >
           <ProductImageCarousel
             images={allImages}
             alt={product.name}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-contain transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, 512px"
             showArrows={allImages.length > 1}
             onCurrentChange={setCurrentImageIndex}
           />
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
           {/* Zoom hint */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             <div className="bg-black/40 rounded-full p-3">
