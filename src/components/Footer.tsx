@@ -1,6 +1,17 @@
+import Image from "next/image";
+
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("506") && digits.length >= 11) {
+    return `+506 ${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+  }
+  return `+${digits}`;
+}
+
 export default function Footer() {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "50688888888";
   const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+  const displayPhone = formatPhone(whatsappNumber);
 
   return (
     <footer className="bg-brand-dark text-white py-16 px-6">
@@ -8,10 +19,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
           {/* ── Brand ── */}
           <div>
-            <p className="font-brand text-3xl font-bold gradient-text">
-              Dulce Pecado
-            </p>
-            <p className="text-white/50 text-sm mt-2 leading-relaxed">
+            {/* Logo + nombre */}
+            <div className="flex items-center gap-3 mb-3">
+              <Image
+                src="/logo.png"
+                alt="Dulce Pecado logo"
+                width={52}
+                height={52}
+                className="rounded-full"
+              />
+              <p className="font-brand text-2xl font-bold gradient-text">
+                Dulce Pecado
+              </p>
+            </div>
+            <p className="text-white/50 text-sm leading-relaxed">
               El placer en cada cucharada.
               <br />
               Postres artesanales premium.
@@ -75,11 +96,11 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="hover:text-[#25D366] transition-colors"
                 >
-                  📱 WhatsApp: +506 8888-8888
+                  📱 WhatsApp: {displayPhone}
                 </a>
               </li>
-              <li>📍 San José, Costa Rica</li>
-              <li>🕐 Lun – Sáb: 8am – 8pm</li>
+              <li>📍 Turrialba, Cartago, Costa Rica</li>
+              <li>🕐 Mar – Dom: 8am – 8pm</li>
             </ul>
           </div>
         </div>
@@ -90,7 +111,16 @@ export default function Footer() {
             © {new Date().getFullYear()} Dulce Pecado. Todos los derechos reservados.
           </p>
           <p className="text-white/30 text-xs">
-            Hecho con ❤️ en Costa Rica 🇨🇷
+            Desarrollado por{" "}
+            <a
+              href="https://www.linkedin.com/in/ronald-sancho-madrigal-5303491b4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/50 hover:text-brand-pink transition-colors underline underline-offset-2"
+            >
+              Ronald Sancho Madrigal
+            </a>{" "}
+            en Costa Rica 🇨🇷
           </p>
         </div>
       </div>

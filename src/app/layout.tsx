@@ -14,13 +14,18 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Dulce Pecado | Postres Premium Costa Rica",
+  title: "Dulce Pecado | Postres Artesanales Turrialba",
   description:
-    "Gelatinas mosaico y apretados gourmet artesanales. El placer en cada cucharada. Pedidos en San José, Costa Rica.",
+    "Gelatinas mosaico y apretados gourmet artesanales. El placer en cada cucharada. Pedidos en Turrialba, Cartago, Costa Rica.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
-    title: "Dulce Pecado | Postres Premium Costa Rica",
-    description: "Gelatinas mosaico y apretados gourmet artesanales.",
+    title: "Dulce Pecado | Postres Artesanales Turrialba",
+    description: "Gelatinas mosaico y apretados gourmet artesanales. Turrialba, Cartago, Costa Rica.",
     type: "website",
+    images: ["/logo.png"],
   },
 };
 

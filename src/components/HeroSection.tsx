@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, Sparkles } from "lucide-react";
@@ -36,6 +37,18 @@ export default function HeroSection() {
 
       {/* ── Main content ── */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        {/* Logo */}
+        <motion.div {...fadeUp(0.05)} className="flex justify-center mb-4">
+          <Image
+            src="/logo.png"
+            alt="Dulce Pecado"
+            width={110}
+            height={110}
+            className="rounded-full drop-shadow-xl"
+            priority
+          />
+        </motion.div>
+
         {/* Eyebrow */}
         <motion.div {...fadeUp(0.1)}>
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-muted text-brand-pink text-sm font-semibold mb-6 border border-brand-pink/20">

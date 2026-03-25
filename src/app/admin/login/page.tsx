@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -41,11 +42,17 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm bg-white rounded-2xl card-shadow p-8">
         {/* Logo */}
         <div className="text-center mb-8">
-          <p className="font-brand text-3xl font-bold gradient-text">Dulce Pecado</p>
-          <div className="mt-3 mx-auto w-10 h-10 rounded-full gradient-bg flex items-center justify-center">
-            <Lock className="w-5 h-5 text-white" />
+          <div className="flex justify-center mb-3">
+            <Image
+              src="/logo.png"
+              alt="Dulce Pecado"
+              width={80}
+              height={80}
+              className="rounded-full drop-shadow-md"
+            />
           </div>
-          <p className="text-brand-dark/50 text-sm mt-3">Acceso de administrador</p>
+          <p className="font-brand text-2xl font-bold gradient-text">Dulce Pecado</p>
+          <p className="text-brand-dark/50 text-sm mt-1">Acceso de administrador</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
