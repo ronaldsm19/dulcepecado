@@ -4,7 +4,53 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { User } from "@/models/User";
 import { signJwt, COOKIE_NAME } from "@/lib/auth";
 
+// ── In-memory rate limiter ──────────────────────────────────────
+const attempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_ATTEMPTS = 5;
+const WINDOW_MS = 15 * 60 * 1000; // 15 minutos
+
+function getIp(req: NextRequest) {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+}
+
+function isBlocked(ip: string): boolean {
+  const rec = attempts.get(ip);
+  if (!rec) return false;
+  if (Date.now() > rec.resetAt) { attempts.delete(ip); return false; }
+  return rec.count >= MAX_ATTEMPTS;
+}
+
+function recordFail(ip: string) {
+  const now = Date.now();
+  const rec = attempts.get(ip);
+  if (!rec || now > rec.resetAt) {
+    attempts.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+  } else {
+    rec.count++;
+  }
+}
+
+function clearAttempts(ip: string) {
+  attempts.delete(ip);
+}
+// ───────────────────────────────────────────────────────────────
+
+interface IUserLean {
+  email: string;
+  password: string;
+  role: string;
+}
+
 export async function POST(request: NextRequest) {
+  const ip = getIp(request);
+
+  if (isBlocked(ip)) {
+    return NextResponse.json(
+      { error: "Demasiados intentos fallidos. Intenta de nuevo en 15 minutos." },
+      { status: 429 }
+    );
+  }
+
   try {
     const { email, password } = await request.json();
 
@@ -17,22 +63,24 @@ export async function POST(request: NextRequest) {
 
     await connectToDatabase();
 
-    // Buscar usuario en MongoDB
     const user = await User.findOne({ email: email.toLowerCase().trim() }).lean() as IUserLean | null;
 
-    // Delay para mitigar fuerza bruta
     if (!user) {
+      recordFail(ip);
       await new Promise((r) => setTimeout(r, 500));
       return NextResponse.json({ error: "Credenciales incorrectas" }, { status: 401 });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
+      recordFail(ip);
       await new Promise((r) => setTimeout(r, 500));
       return NextResponse.json({ error: "Credenciales incorrectas" }, { status: 401 });
     }
 
-    // Crear JWT y setear cookie
+    // Login exitoso → limpiar contador
+    clearAttempts(ip);
+
     const token = await signJwt({ email: user.email, role: "admin" });
 
     const response = NextResponse.json({ ok: true, email: user.email });
@@ -49,10 +97,4 @@ export async function POST(request: NextRequest) {
     console.error("[POST /api/admin/auth/login]", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
-}
-
-interface IUserLean {
-  email: string;
-  password: string;
-  role: string;
 }
