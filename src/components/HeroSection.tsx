@@ -18,6 +18,45 @@ const fadeUp = (delay = 0) => ({
 export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white">
+      {/* ── Background product images (blurred, decorative) ── */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Left */}
+        <motion.div
+          className="absolute bottom-0 left-0 w-64 sm:w-80 h-[55%] hidden sm:block"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1.4, delay: 0.9, ease: "easeOut" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/hero-left.jpg" alt="" className="w-full h-full object-cover object-center opacity-[0.22] blur-[3px] scale-105" />
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to right, transparent 40%, white 85%), linear-gradient(to top, transparent 25%, white 65%)" }} />
+        </motion.div>
+
+        {/* Center */}
+        <motion.div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-72 h-[42%] hidden lg:block"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.4, delay: 1.1, ease: "easeOut" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/hero-center.jpg" alt="" className="w-full h-full object-cover object-top opacity-[0.18] blur-[3px] scale-105" />
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to right, white 5%, transparent 25%, transparent 75%, white 95%), linear-gradient(to top, transparent 20%, white 65%)" }} />
+        </motion.div>
+
+        {/* Right */}
+        <motion.div
+          className="absolute bottom-0 right-0 w-64 sm:w-80 h-[55%] hidden sm:block"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1.4, delay: 0.9, ease: "easeOut" }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/hero-right.jpg" alt="" className="w-full h-full object-cover object-center opacity-[0.22] blur-[3px] scale-105" />
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to left, transparent 40%, white 85%), linear-gradient(to top, transparent 25%, white 65%)" }} />
+        </motion.div>
+      </div>
+
       {/* ── Gradient blobs ── */}
       <motion.div
         className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-brand-pink/20 blur-3xl pointer-events-none"
