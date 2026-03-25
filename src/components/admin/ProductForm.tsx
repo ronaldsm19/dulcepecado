@@ -50,6 +50,8 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
     try {
       const formData = new FormData();
       formData.append("file", file);
+      // Enviar URL anterior para que el servidor la elimine de Supabase
+      if (form.image) formData.append("oldImageUrl", form.image);
 
       const res = await fetch("/api/admin/upload", {
         method: "POST",

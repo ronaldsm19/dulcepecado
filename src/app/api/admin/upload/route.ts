@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { supabaseAdmin, STORAGE_BUCKET } from "@/lib/supabase";
 
+/** Extrae el path dentro del bucket a partir de una URL pública de Supabase */
+function extractStoragePath(url: string): string | null {
+  const marker = `/storage/v1/object/public/${STORAGE_BUCKET}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return decodeURIComponent(url.slice(idx + marker.length));
+}
+
 export async function POST(request: NextRequest) {
   const session = await getSession(request);
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -44,7 +52,7 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
 
-    // Subir a Supabase Storage
+    // Subir nueva imagen
     const { error: uploadError } = await supabaseAdmin.storage
       .from(STORAGE_BUCKET)
       .upload(filePath, buffer, {
@@ -61,6 +69,18 @@ export async function POST(request: NextRequest) {
     const { data } = supabaseAdmin.storage
       .from(STORAGE_BUCKET)
       .getPublicUrl(filePath);
+
+    // Eliminar imagen anterior si se proporcionó
+    const oldImageUrl = formData.get("oldImageUrl") as string | null;
+    if (oldImageUrl) {
+      const oldPath = extractStoragePath(oldImageUrl);
+      if (oldPath) {
+        supabaseAdmin.storage
+          .from(STORAGE_BUCKET)
+          .remove([oldPath])
+          .catch((err) => console.error("[upload] Error eliminando imagen anterior:", err));
+      }
+    }
 
     return NextResponse.json({ url: data.publicUrl });
   } catch (error) {

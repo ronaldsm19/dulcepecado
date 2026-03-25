@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { X, ZoomIn } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ const categoryLabels: Record<string, { label: string; color: string }> = {
 export default function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
   const cat = categoryLabels[product.category] ?? categoryLabels.especial;
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   // Reset selections whenever a different product opens
   useEffect(() => {
@@ -58,17 +60,48 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="p-0 gap-0">
         {/* ── Product image ── */}
-        <div className="relative w-full h-56 overflow-hidden rounded-t-2xl">
+        <div
+          className="relative w-full h-56 overflow-hidden rounded-t-2xl cursor-zoom-in group"
+          onClick={() => setLightboxOpen(true)}
+        >
           <Image
             src={product.image}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, 512px"
           />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          {/* Zoom hint */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-black/40 rounded-full p-3">
+              <ZoomIn className="w-6 h-6 text-white" />
+            </div>
+          </div>
         </div>
+
+        {/* ── Lightbox ── */}
+        {lightboxOpen && (
+          <div
+            className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-4"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <button
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 rounded-full p-2.5 transition-colors"
+              onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={product.image}
+              alt={product.name}
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
 
         {/* ── Content ── */}
         <div className="px-6 pb-6 pt-4 space-y-4">

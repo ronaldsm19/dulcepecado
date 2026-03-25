@@ -120,7 +120,7 @@ export default function Footer() {
             >
               Ronald Sancho Madrigal
             </a>{" "}
-            en Costa Rica 🇨🇷
+            en Turrialba 🇨🇷
           </p>
         </div>
       </div>
