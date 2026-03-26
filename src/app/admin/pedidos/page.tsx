@@ -4,8 +4,23 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import OrderForm from "@/components/admin/OrderForm";
+import Pagination from "@/components/admin/Pagination";
 import { IOrder } from "@/models/Order";
-import { Plus, CheckCircle, Trash2, Phone, Pencil } from "lucide-react";
+import { Plus, CheckCircle, Trash2, Phone, Pencil, Search } from "lucide-react";
+
+function orderProductLabel(o: IOrder): string {
+  if (o.items && o.items.length > 0) {
+    return o.items.map(i => `${i.productName} ×${i.quantity}`).join(", ");
+  }
+  return o.productName ? `${o.productName} ×${o.quantity ?? 1}` : "—";
+}
+
+function orderToppings(o: IOrder): string[] {
+  if (o.items && o.items.length > 0) {
+    return o.items.flatMap(i => i.itemToppings?.flat() ?? []);
+  }
+  return o.options ?? [];
+}
 
 type OrderRow = IOrder & { _id: string };
 
@@ -13,6 +28,9 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "paid" | "pending">("all");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
   const [showForm, setShowForm] = useState(false);
   const [editOrder, setEditOrder] = useState<OrderRow | null>(null);
   const [saving, setSaving] = useState(false);
@@ -80,11 +98,27 @@ export default function AdminOrdersPage() {
   const paidCount    = orders.filter((o) => o.paid).length;
   const pendingCount = orders.filter((o) => !o.paid).length;
 
-  // ── Filtered rows for the table ────────────────────────────────
-  const displayOrders =
-    filter === "all"     ? orders :
-    filter === "paid"    ? orders.filter((o) => o.paid) :
-                           orders.filter((o) => !o.paid);
+  // ── Filtered rows ───────────────────────────────────────────────
+  const filteredOrders = orders
+    .filter(o =>
+      filter === "all"     ? true :
+      filter === "paid"    ? o.paid :
+                             !o.paid
+    )
+    .filter(o => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      const productLabel = orderProductLabel(o).toLowerCase();
+      return (
+        o.customerName.toLowerCase().includes(q) ||
+        productLabel.includes(q) ||
+        o.phone.includes(q)
+      );
+    });
+
+  const totalPages   = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  const safePage     = Math.min(page, totalPages);
+  const displayOrders = filteredOrders.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   return (
     <div className="p-4 md:p-8 space-y-6">
@@ -101,21 +135,33 @@ export default function AdminOrdersPage() {
         </Button>
       </div>
 
-      {/* Filter tabs */}
-      <div className="flex gap-2">
-        {(["all", "pending", "paid"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
-              filter === f
-                ? "gradient-bg text-white border-transparent"
-                : "bg-white text-brand-dark/60 border-brand-muted hover:border-brand-pink/30"
-            }`}
-          >
-            {f === "all" ? "Todos" : f === "paid" ? "Pagados" : "Pendientes"}
-          </button>
-        ))}
+      {/* Filter tabs + search */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex gap-2">
+          {(["all", "pending", "paid"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => { setFilter(f); setPage(1); }}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer border ${
+                filter === f
+                  ? "gradient-bg text-white border-transparent"
+                  : "bg-white text-brand-dark/60 border-brand-muted hover:border-brand-pink/30"
+              }`}
+            >
+              {f === "all" ? "Todos" : f === "paid" ? "Pagados" : "Pendientes"}
+            </button>
+          ))}
+        </div>
+        <div className="relative sm:ml-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-dark/30" />
+          <input
+            type="text"
+            placeholder="Buscar cliente o producto..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            className="pl-8 pr-3 py-1.5 border border-brand-muted rounded-full text-sm focus:outline-none focus:border-brand-pink w-full sm:w-64"
+          />
+        </div>
       </div>
 
       {/* ── Stats row ── */}
@@ -164,7 +210,8 @@ export default function AdminOrdersPage() {
         <div className="text-brand-dark/40 text-sm">Cargando...</div>
       ) : (
         <div className="bg-white rounded-2xl card-shadow overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr className="border-b border-brand-muted text-brand-dark/50 text-xs uppercase tracking-wider">
                 <th className="text-left px-4 py-3">Cliente</th>
@@ -188,20 +235,26 @@ export default function AdminOrdersPage() {
                       <Phone className="w-3 h-3" /> {o.phone}
                     </a>
                   </td>
-                  <td className="px-4 py-3 hidden md:table-cell text-brand-dark/70">{o.productName}</td>
+                  <td className="px-4 py-3 hidden md:table-cell text-brand-dark/70 max-w-[180px]">
+                    <p className="truncate text-sm" title={orderProductLabel(o)}>{orderProductLabel(o)}</p>
+                  </td>
                   <td className="px-4 py-3 hidden lg:table-cell">
-                    <div className="flex flex-wrap gap-1">
-                      {o.options.slice(0, 2).map((op) => (
-                        <span key={op} className="text-xs px-2 py-0.5 rounded-full bg-brand-muted text-brand-dark/60">{op}</span>
-                      ))}
-                      {o.options.length > 2 && (
-                        <span className="text-xs text-brand-dark/40">+{o.options.length - 2}</span>
-                      )}
-                    </div>
+                    {(() => {
+                      const tops = orderToppings(o);
+                      return (
+                        <div className="flex flex-wrap gap-1">
+                          {tops.slice(0, 2).map((op) => (
+                            <span key={op} className="text-xs px-2 py-0.5 rounded-full bg-brand-muted text-brand-dark/60">{op}</span>
+                          ))}
+                          {tops.length > 2 && (
+                            <span className="text-xs text-brand-dark/40">+{tops.length - 2}</span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 font-semibold text-brand-dark">
                     ₡{o.total.toLocaleString("es-CR")}
-                    {o.quantity > 1 && <span className="text-xs font-normal text-brand-dark/40 ml-1">x{o.quantity}</span>}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -241,12 +294,21 @@ export default function AdminOrdersPage() {
               {displayOrders.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-8 text-center text-brand-dark/40">
-                    No hay pedidos {filter !== "all" ? "con este filtro" : "registrados aún"}.
+                    {search ? "Sin resultados para esa búsqueda." : filter !== "all" ? "No hay pedidos con este filtro." : "No hay pedidos registrados aún."}
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
+          <Pagination
+            page={safePage}
+            totalPages={totalPages}
+            onPage={setPage}
+            pageSize={pageSize}
+            onPageSize={s => { setPageSize(s); setPage(1); }}
+            totalItems={filteredOrders.length}
+          />
         </div>
       )}
 
@@ -275,7 +337,9 @@ export default function AdminOrdersPage() {
                 initial={{
                   customerName: editOrder.customerName,
                   phone:        editOrder.phone,
-                  productId:    editOrder.productId as unknown as string,
+                  items:        editOrder.items,
+                  // Legacy fallback para órdenes antiguas
+                  productId:    editOrder.productId as unknown as string | undefined,
                   productName:  editOrder.productName,
                   quantity:     editOrder.quantity,
                   total:        editOrder.total,

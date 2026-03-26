@@ -22,20 +22,25 @@ export async function POST(request: NextRequest) {
 
   await connectToDatabase();
   const body = await request.json();
-  const { customerName, phone, productId, productName, options, quantity, total, paid, orderedAt, notes } = body;
+  const { customerName, phone, items, total, paid, orderedAt, notes } = body;
 
-  if (!customerName || !phone || !productId || !productName || !total) {
+  if (!customerName || !phone || !items?.length || !total) {
     return NextResponse.json({ error: "Faltan campos requeridos" }, { status: 400 });
   }
 
   const order = await Order.create({
-    customerName, phone, productId, productName,
-    options: options ?? [],
-    quantity: quantity ?? 1,
-    total: Number(total),
-    paid: paid ?? false,
+    customerName,
+    phone,
+    items,
+    total:     Number(total),
+    paid:      paid ?? false,
     orderedAt: orderedAt ? new Date(orderedAt) : new Date(),
     notes,
+    // Legacy fields from first item for backward compat display
+    productId:   items[0]?.productId   ?? "",
+    productName: items[0]?.productName ?? "",
+    quantity:    items[0]?.quantity    ?? 1,
+    options:     items[0]?.itemToppings?.flat() ?? [],
   });
 
   return NextResponse.json({ order }, { status: 201 });

@@ -7,8 +7,9 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import ProductForm from "@/components/admin/ProductForm";
+import Pagination from "@/components/admin/Pagination";
 import { IProduct } from "@/models/Product";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 
 type ProductRow = IProduct & { _id: string };
 
@@ -21,6 +22,9 @@ const catLabel: Record<string, string> = {
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<ProductRow | null>(null);
   const [saving, setSaving] = useState(false);
@@ -70,21 +74,45 @@ export default function AdminProductsPage() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex-1">
           <h1 className="font-brand text-2xl md:text-3xl font-bold text-brand-dark">Productos</h1>
           <p className="text-brand-dark/50 text-sm mt-1">{products.length} productos en catálogo</p>
         </div>
-        <Button onClick={openCreate} className="shrink-0">
-          <Plus className="w-4 h-4 mr-1" /> Nuevo producto
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-brand-dark/30" />
+            <input
+              type="text"
+              placeholder="Buscar producto..."
+              value={search}
+              onChange={e => { setSearch(e.target.value); setPage(1); }}
+              className="pl-8 pr-3 py-1.5 border border-brand-muted rounded-full text-sm focus:outline-none focus:border-brand-pink w-48"
+            />
+          </div>
+          <Button onClick={openCreate} className="shrink-0">
+            <Plus className="w-4 h-4 mr-1" /> Nuevo
+          </Button>
+        </div>
       </div>
 
       {loading ? (
         <div className="text-brand-dark/40 text-sm">Cargando...</div>
       ) : (
+        (() => {
+          const filtered = products.filter(p =>
+            !search.trim() ||
+            p.name.toLowerCase().includes(search.toLowerCase()) ||
+            p.category.toLowerCase().includes(search.toLowerCase())
+          );
+          const totalPagesP = Math.max(1, Math.ceil(filtered.length / pageSize));
+          const safePg      = Math.min(page, totalPagesP);
+          const pageItems   = filtered.slice((safePg - 1) * pageSize, safePg * pageSize);
+
+          return (
         <div className="bg-white rounded-2xl card-shadow overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[480px]">
             <thead>
               <tr className="border-b border-brand-muted text-brand-dark/50 text-xs uppercase tracking-wider">
                 <th className="text-left px-4 py-3">Producto</th>
@@ -95,7 +123,7 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
+              {pageItems.map((p) => (
                 <tr key={p._id} className="border-b border-brand-muted/50 hover:bg-brand-muted/20 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -153,16 +181,27 @@ export default function AdminProductsPage() {
                   </td>
                 </tr>
               ))}
-              {products.length === 0 && (
+              {pageItems.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-brand-dark/40">
-                    No hay productos. Crea el primero.
+                    {search ? "Sin resultados para esa búsqueda." : "No hay productos. Crea el primero."}
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
+          <Pagination
+            page={safePg}
+            totalPages={totalPagesP}
+            onPage={setPage}
+            pageSize={pageSize}
+            onPageSize={s => { setPageSize(s); setPage(1); }}
+            totalItems={filtered.length}
+          />
         </div>
+          );
+        })()
       )}
 
       {/* Form Dialog */}

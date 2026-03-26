@@ -33,7 +33,7 @@ export default function AdminSidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <aside className="w-60 min-h-screen bg-brand-dark flex flex-col">
+    <aside className="w-60 h-full min-h-screen bg-brand-dark flex flex-col">
       {/* Brand */}
       <div className="px-6 py-6 border-b border-white/10 flex items-center justify-between">
         <div>

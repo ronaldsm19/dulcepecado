@@ -19,9 +19,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <div className="flex min-h-screen bg-brand-muted/20">
-      {/* Desktop sidebar — always visible */}
-      <div className="hidden md:block shrink-0">
+    <div className="flex h-screen overflow-hidden bg-brand-muted/20">
+      {/* Desktop sidebar — fixed height, scrolls internally if needed */}
+      <div className="hidden md:flex shrink-0 h-screen overflow-y-auto">
         <AdminSidebar />
       </div>
 
@@ -38,10 +38,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </>
       )}
 
-      {/* Content area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Content area — scrolls independently of the sidebar */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile top bar */}
-        <header className="md:hidden flex items-center gap-3 px-4 py-3 bg-brand-dark sticky top-0 z-30">
+        <header className="md:hidden flex items-center gap-3 px-4 py-3 bg-brand-dark shrink-0 z-30">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
@@ -52,7 +52,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <p className="font-brand text-lg font-bold gradient-text">Dulce Pecado</p>
         </header>
 
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

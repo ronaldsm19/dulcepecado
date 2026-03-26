@@ -195,18 +195,20 @@ export default function AdminFinancesPage() {
               {pieData.length === 0 ? (
                 <p className="text-brand-dark/40 text-sm">Sin gastos registrados.</p>
               ) : (
-                <div className="flex items-center gap-4">
-                  <ResponsiveContainer width="50%" height={180}>
-                    <PieChart>
-                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={75}
-                        dataKey="value" stroke="none">
-                        {pieData.map((_, i) => (
-                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="flex-1 space-y-2">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="w-full sm:w-1/2 shrink-0">
+                    <ResponsiveContainer width="100%" height={180}>
+                      <PieChart>
+                        <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={75}
+                          dataKey="value" stroke="none">
+                          {pieData.map((_, i) => (
+                            <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex-1 w-full space-y-2">
                     {pieData.map((item, i) => (
                       <div key={item.name} className="flex items-center gap-2 text-sm">
                         <span className="w-3 h-3 rounded-full shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
