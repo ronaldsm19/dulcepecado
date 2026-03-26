@@ -2,8 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { Upload, X, Loader2, Check } from "lucide-react";
+import { Upload, X, Loader2, Check, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+interface Category {
+  _id: string;
+  label: string;
+}
 
 interface AboutData {
   title: string;
@@ -25,6 +30,13 @@ export default function ConfiguracionPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+
+  // Categories state
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [catsLoading, setCatsLoading] = useState(true);
+  const [newCatLabel, setNewCatLabel] = useState("");
+  const [addingCat, setAddingCat] = useState(false);
+  const [deletingCatId, setDeletingCatId] = useState<string | null>(null);
   const fileRefs = [
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -43,7 +55,45 @@ export default function ConfiguracionPage() {
         }
       })
       .finally(() => setLoading(false));
+
+    fetch("/api/admin/categories")
+      .then((r) => r.json())
+      .then((d) => setCategories(d.categories ?? []))
+      .finally(() => setCatsLoading(false));
   }, []);
+
+  async function handleAddCategory(e: React.FormEvent) {
+    e.preventDefault();
+    const label = newCatLabel.trim();
+    if (!label) return;
+    setAddingCat(true);
+    try {
+      const r = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ label }),
+      });
+      const d = await r.json();
+      if (d.category) {
+        setCategories((prev) =>
+          [...prev, d.category].sort((a, b) => a.label.localeCompare(b.label))
+        );
+        setNewCatLabel("");
+      }
+    } finally {
+      setAddingCat(false);
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    setDeletingCatId(id);
+    try {
+      await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
+      setCategories((prev) => prev.filter((c) => c._id !== id));
+    } finally {
+      setDeletingCatId(null);
+    }
+  }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, idx: number) {
     const file = e.target.files?.[0];
@@ -221,6 +271,65 @@ export default function ConfiguracionPage() {
           )}
         </div>
       </form>
+
+      {/* ── Categorías de productos ── */}
+      <section className="bg-white rounded-2xl border border-brand-muted p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold text-brand-dark text-lg">Categorías de productos</h2>
+          <p className="text-sm text-brand-dark/50 mt-0.5">
+            Las categorías aparecen en el formulario de productos para organizar tu catálogo.
+          </p>
+        </div>
+
+        {catsLoading ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-brand-pink" />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {categories.length === 0 && (
+              <p className="text-sm text-brand-dark/40 italic">No hay categorías aún.</p>
+            )}
+            {categories.map((cat) => (
+              <div
+                key={cat._id}
+                className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl border border-brand-muted bg-brand-muted/10"
+              >
+                <span className="text-sm text-brand-dark">{cat.label}</span>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteCategory(cat._id)}
+                  disabled={deletingCatId === cat._id}
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-brand-dark/30 hover:text-red-500 transition-colors disabled:opacity-50"
+                >
+                  {deletingCatId === cat._id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <form onSubmit={handleAddCategory} className="flex gap-2">
+          <input
+            type="text"
+            value={newCatLabel}
+            onChange={(e) => setNewCatLabel(e.target.value)}
+            placeholder="Nueva categoría..."
+            className="flex-1 border border-brand-muted rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-pink"
+          />
+          <Button type="submit" disabled={addingCat || !newCatLabel.trim()} size="sm">
+            {addingCat ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+          </Button>
+        </form>
+      </section>
     </div>
   );
 }

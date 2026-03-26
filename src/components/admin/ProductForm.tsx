@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { IProduct } from "@/models/Product";
 import { X, Plus, Upload, ImageIcon, Loader2, Images } from "lucide-react";
+import CategoryCombobox from "@/components/admin/CategoryCombobox";
 
 const MAX_EXTRA_IMAGES = 4;
 
@@ -21,7 +22,7 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
     description:  initial?.description  ?? "",
     price:        initial?.price?.toString() ?? "",
     image:        initial?.image        ?? "",
-    category:     initial?.category     ?? "gelatina",
+    category:     initial?.category     ?? "",
     available:    initial?.available    ?? true,
     featured:     initial?.featured     ?? false,
     delivery:     initial?.delivery     ?? false,
@@ -129,6 +130,10 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!form.category.trim()) {
+      setUploadError("Debes seleccionar o crear una categoría");
+      return;
+    }
     if (!form.image) {
       setUploadError("Debes subir una imagen para el producto");
       return;
@@ -184,15 +189,10 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
         </div>
         <div>
           <label className="block text-sm font-medium text-brand-dark mb-1">Categoría *</label>
-          <select
+          <CategoryCombobox
             value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value as IProduct["category"] })}
-            className="w-full border border-brand-muted rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-pink"
-          >
-            <option value="gelatina">Gelatina Mosaico</option>
-            <option value="apretado">Apretado Gourmet</option>
-            <option value="especial">Edición Especial</option>
-          </select>
+            onChange={(val) => setForm({ ...form, category: val })}
+          />
         </div>
       </div>
 

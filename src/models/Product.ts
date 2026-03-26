@@ -9,7 +9,7 @@ export interface IProduct {
   toppings: string[];
   image: string;
   images: string[];        // imágenes adicionales (carrusel)
-  category: "gelatina" | "apretado" | "especial";
+  category: string;
   available: boolean;
   featured: boolean;       // destacado en "Más vendidos"
   delivery: boolean;       // si tiene envío disponible
@@ -49,8 +49,8 @@ const ProductSchema = new Schema(
     },
     category: {
       type: String,
-      enum: ["gelatina", "apretado", "especial"],
       required: [true, "La categoría es requerida"],
+      trim: true,
     },
     available: {
       type: Boolean,
