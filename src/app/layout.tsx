@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   description:
     "Gelatinas mosaico y apretados gourmet artesanales. El placer en cada cucharada. Pedidos en Turrialba, Cartago, Costa Rica.",
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: "/icon-square.png",
+    apple: "/icon-square.png",
   },
   openGraph: {
     title: "Dulce Pecado | Postres Artesanales Turrialba",
