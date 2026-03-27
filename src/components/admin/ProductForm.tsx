@@ -21,6 +21,7 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
     name:         initial?.name         ?? "",
     description:  initial?.description  ?? "",
     price:        initial?.price?.toString() ?? "",
+    stock:        initial?.stock?.toString() ?? "0",
     image:        initial?.image        ?? "",
     category:     initial?.category     ?? "",
     available:    initial?.available    ?? true,
@@ -141,6 +142,7 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
     await onSave({
       ...form,
       price: Number(form.price),
+      stock: Number(form.stock),
       toppings,
       images: extraImages,
       delivery: form.delivery,
@@ -194,6 +196,17 @@ export default function ProductForm({ initial, onSave, onCancel, saving }: Produ
             onChange={(val) => setForm({ ...form, category: val })}
           />
         </div>
+      </div>
+
+      {/* Stock */}
+      <div>
+        <label className="block text-sm font-medium text-brand-dark mb-1">Stock disponible</label>
+        <input
+          type="number" min={0} step={1}
+          value={form.stock}
+          onChange={(e) => setForm({ ...form, stock: e.target.value })}
+          className="w-full border border-brand-muted rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-pink"
+        />
       </div>
 
       {/* ── Imagen principal ── */}

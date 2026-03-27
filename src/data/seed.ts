@@ -9,6 +9,7 @@ export interface SeedProduct {
   delivery?: boolean;
   deliveryNote?: string;
   offers?: { qty: number; price: number }[];
+  stock?: number;
   category: "gelatina" | "apretado" | "especial";
   available: boolean;
 }

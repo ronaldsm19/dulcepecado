@@ -11,11 +11,13 @@ import {
   Settings,
   LogOut,
   X,
+  Warehouse,
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin",                label: "Dashboard",     icon: LayoutDashboard },
   { href: "/admin/productos",      label: "Productos",     icon: Package },
+  { href: "/admin/inventario",     label: "Inventario",    icon: Warehouse },
   { href: "/admin/pedidos",        label: "Pedidos",       icon: ShoppingBag },
   { href: "/admin/gastos",         label: "Gastos",        icon: Receipt },
   { href: "/admin/finanzas",       label: "Finanzas",      icon: TrendingUp },

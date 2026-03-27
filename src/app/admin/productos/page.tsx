@@ -118,6 +118,7 @@ export default function AdminProductsPage() {
                 <th className="text-left px-4 py-3">Producto</th>
                 <th className="text-left px-4 py-3 hidden md:table-cell">Categoría</th>
                 <th className="text-left px-4 py-3">Precio</th>
+                <th className="text-left px-4 py-3 hidden sm:table-cell">Stock</th>
                 <th className="text-left px-4 py-3 hidden sm:table-cell">Estado</th>
                 <th className="text-right px-4 py-3">Acciones</th>
               </tr>
@@ -157,6 +158,15 @@ export default function AdminProductsPage() {
                     ₡{p.price.toLocaleString("es-CR")}
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                      (p.stock ?? 0) === 0 ? "bg-red-50 text-red-500"
+                      : (p.stock ?? 0) <= 3 ? "bg-yellow-50 text-amber-600"
+                      : "bg-emerald-50 text-emerald-600"
+                    }`}>
+                      {p.stock ?? 0}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 hidden sm:table-cell">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                       p.available ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"
                     }`}>
@@ -183,7 +193,7 @@ export default function AdminProductsPage() {
               ))}
               {pageItems.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-brand-dark/40">
+                  <td colSpan={6} className="px-4 py-8 text-center text-brand-dark/40">
                     {search ? "Sin resultados para esa búsqueda." : "No hay productos. Crea el primero."}
                   </td>
                 </tr>

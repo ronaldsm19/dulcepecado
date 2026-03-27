@@ -38,6 +38,23 @@ export async function PUT(
   return NextResponse.json({ product });
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getSession(request);
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  const { id } = await params;
+  await connectToDatabase();
+  const { stock } = await request.json();
+  if (typeof stock !== "number" || stock < 0)
+    return NextResponse.json({ error: "Stock inválido" }, { status: 400 });
+  const product = await Product.findByIdAndUpdate(id, { stock }, { new: true, runValidators: true }).lean();
+  if (!product) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
+  return NextResponse.json({ product });
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

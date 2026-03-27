@@ -15,6 +15,7 @@ export interface IProduct {
   delivery: boolean;       // si tiene envío disponible
   deliveryNote: string;    // nota de horarios/costo de envío
   offers: { qty: number; price: number }[];  // ofertas por volumen
+  stock: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -71,6 +72,11 @@ const ProductSchema = new Schema(
     offers: {
       type: [{ qty: { type: Number, required: true }, price: { type: Number, required: true } }],
       default: [],
+    },
+    stock: {
+      type: Number,
+      default: 0,
+      min: [0, "El stock no puede ser negativo"],
     },
   },
   { timestamps: true }

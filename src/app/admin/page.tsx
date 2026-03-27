@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import StatsCard from "@/components/admin/StatsCard";
-import { TrendingUp, ShoppingBag, Receipt, Clock } from "lucide-react";
+import { TrendingUp, ShoppingBag, Receipt, Clock, Package } from "lucide-react";
 
 interface Analytics {
   topClicksThisWeek: { _id: string; productName: string; clicks: number }[];
@@ -23,13 +23,17 @@ interface Analytics {
 
 export default function AdminDashboard() {
   const [data, setData] = useState<Analytics | null>(null);
+  const [productsData, setProductsData] = useState<{ stock?: number; price: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/analytics")
-      .then((r) => r.json())
-      .then((d) => setData(d))
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch("/api/admin/analytics").then((r) => r.json()),
+      fetch("/api/admin/products").then((r) => r.json()),
+    ]).then(([analyticsRes, productsRes]) => {
+      setData(analyticsRes);
+      setProductsData(productsRes.products ?? []);
+    }).finally(() => setLoading(false));
   }, []);
 
   if (loading) {
@@ -45,6 +49,9 @@ export default function AdminDashboard() {
     topClicksThisWeek: [],
     recentOrders: [],
   };
+
+  const totalUnitsInStock = productsData.reduce((s, p) => s + (p.stock ?? 0), 0);
+  const estimatedRevenue  = productsData.reduce((s, p) => s + (p.stock ?? 0) * p.price, 0);
 
   return (
     <div className="p-4 md:p-8 space-y-8">
@@ -83,6 +90,27 @@ export default function AdminDashboard() {
           color="yellow"
           sub="Esta semana"
         />
+      </div>
+
+      {/* Inventario */}
+      <div>
+        <h2 className="font-semibold text-brand-dark mb-3">Inventario</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <StatsCard
+            label="Unidades en stock"
+            value={totalUnitsInStock}
+            icon={Package}
+            color="pink"
+            sub="Total unidades disponibles"
+          />
+          <StatsCard
+            label="Ingresos potenciales"
+            value={`₡${estimatedRevenue.toLocaleString("es-CR")}`}
+            icon={TrendingUp}
+            color="green"
+            sub="Si se vende todo el inventario"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
