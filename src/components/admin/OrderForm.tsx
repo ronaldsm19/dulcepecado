@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IProduct } from "@/models/Product";
 import { IOrderItem } from "@/models/Order";
 import { Plus, X, ChevronDown } from "lucide-react";
+import CustomerCombobox from "@/components/admin/CustomerCombobox";
 
 const FREE_TOPPINGS   = 2;
 const EXTRA_TOPPING_PRICE = 150;
@@ -177,11 +178,10 @@ export default function OrderForm({ initial, onSave, onCancel, saving }: OrderFo
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium text-brand-dark mb-1">Nombre cliente *</label>
-          <input
-            type="text" required
+          <CustomerCombobox
             value={form.customerName}
-            onChange={e => setForm({ ...form, customerName: e.target.value })}
-            className="w-full border border-brand-muted rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand-pink"
+            onChangeName={name => setForm(f => ({ ...f, customerName: name }))}
+            onSelectCustomer={(name, phone) => setForm(f => ({ ...f, customerName: name, phone }))}
           />
         </div>
         <div>
