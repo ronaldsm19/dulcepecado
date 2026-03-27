@@ -9,14 +9,32 @@ interface ProductsSectionProps {
   products: (SeedProduct & { _id?: string })[];
 }
 
-const categories = [
-  { key: "all", label: "Todos" },
-  { key: "gelatina", label: "Gelatinas Mosaico" },
-  { key: "apretado", label: "Apretados Gourmet" },
-];
+// Backward-compat display labels for old slug-based categories
+const legacyLabels: Record<string, string> = {
+  gelatina: "Gelatinas Mosaico",
+  apretado: "Apretados Gourmet",
+  especial: "Edición Especial",
+};
 
 function ProductsGrid({ products }: ProductsSectionProps) {
   const [activeCategory, setActiveCategory] = useState("all");
+
+  // Derive tabs from actual product categories (handles both old slugs and new labels)
+  const categories = (() => {
+    const seen = new Set<string>();
+    const items: { key: string; label: string }[] = [];
+    for (const p of products) {
+      if (!seen.has(p.category)) {
+        seen.add(p.category);
+        items.push({
+          key: p.category,
+          label: legacyLabels[p.category] ?? p.category,
+        });
+      }
+    }
+    items.sort((a, b) => a.label.localeCompare(b.label));
+    return [{ key: "all", label: "Todos" }, ...items];
+  })();
 
   const filtered =
     activeCategory === "all"

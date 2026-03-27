@@ -13,19 +13,11 @@ interface ProductCardProps {
   index?: number;
 }
 
-const categoryLabels: Record<string, { label: string; color: string }> = {
-  gelatina: {
-    label: "Gelatina Mosaico",
-    color: "bg-brand-pink/90 text-white",
-  },
-  apretado: {
-    label: "Apretado Gourmet",
-    color: "bg-brand-orange/90 text-white",
-  },
-  especial: {
-    label: "Edición Especial",
-    color: "bg-brand-yellow/90 text-brand-dark",
-  },
+// Backward-compat map for old slug-based categories
+const legacyCategoryLabels: Record<string, { label: string; color: string }> = {
+  gelatina: { label: "Gelatina Mosaico", color: "bg-brand-pink/90 text-white" },
+  apretado: { label: "Apretado Gourmet", color: "bg-brand-orange/90 text-white" },
+  especial: { label: "Edición Especial", color: "bg-brand-yellow/90 text-brand-dark" },
 };
 
 function trackClick(productId?: string) {
@@ -36,7 +28,10 @@ function trackClick(productId?: string) {
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const cat = categoryLabels[product.category] ?? categoryLabels.especial;
+  const cat = legacyCategoryLabels[product.category] ?? {
+    label: product.category,
+    color: "bg-brand-dark/70 text-white",
+  };
 
   return (
     <>
