@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const PARQUE = { lat: 9.905671, lng: -83.6824824 };
+const PARQUE = { lat: 9.905358, lng: -83.683623 };
 const TALLER = { lat: 9.9105789, lng: -83.6800366 };
 
 function wazeUrl(lat: number, lng: number) {
