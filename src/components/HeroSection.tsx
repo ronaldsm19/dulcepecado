@@ -125,12 +125,25 @@ export default function HeroSection() {
 
         {/* Urgency badges */}
         <motion.div
-          className="flex flex-wrap justify-center gap-2 mb-8"
+          className="flex flex-col items-center gap-2 mb-8"
           {...fadeUp(0.52)}
         >
-          <span className="px-3 py-1.5 rounded-full bg-brand-pink/10 text-brand-pink border border-brand-pink/20 text-sm font-semibold">
-            📦 Pedidos por encargo
-          </span>
+          <div className="flex flex-wrap justify-center gap-2">
+            <span className="px-3 py-1.5 rounded-full bg-brand-pink/10 text-brand-pink border border-brand-pink/20 text-sm font-semibold">
+              📦 Pedidos por encargo
+            </span>
+            <a
+              href="https://www.google.com/maps?q=9.905358,-83.683623"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm font-semibold hover:bg-emerald-100 transition-colors"
+            >
+              📍 Retiro en Parque Quesada Casal · sin costo
+            </a>
+          </div>
+          <p className="text-xs text-brand-dark/40">
+            * El retiro aplica solo para productos con <span className="font-medium text-brand-dark/50">🚗 envío disponible</span>
+          </p>
         </motion.div>
 
         {/* CTA buttons */}
