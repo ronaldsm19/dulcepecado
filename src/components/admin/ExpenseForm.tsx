@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Upload, ImageIcon, Loader2, X } from "lucide-react";
+import { Plus, Trash2, Upload, ImageIcon, Loader2, X, ScanLine } from "lucide-react";
 import { ExpenseCategory } from "@/models/Expense";
 
 interface ExpenseItem { description: string; amount: string; }
@@ -31,7 +31,10 @@ export default function ExpenseForm({ onSave, onCancel, saving }: ExpenseFormPro
   const [notes, setNotes] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scanInputRef = useRef<HTMLInputElement>(null);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -56,6 +59,58 @@ export default function ExpenseForm({ onSave, onCancel, saving }: ExpenseFormPro
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleScanFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScanError("");
+    setScanning(true);
+
+    try {
+      // Run upload and AI parse in parallel
+      const uploadForm = new FormData();
+      uploadForm.append("file", file);
+
+      const parseForm = new FormData();
+      parseForm.append("file", file);
+
+      const [uploadRes, parseRes] = await Promise.all([
+        fetch("/api/admin/upload?folder=billing", { method: "POST", body: uploadForm }),
+        fetch("/api/admin/parse-receipt",          { method: "POST", body: parseForm }),
+      ]);
+
+      const [uploadData, parseData] = await Promise.all([
+        uploadRes.json(),
+        parseRes.json(),
+      ]);
+
+      if (uploadRes.ok && uploadData.url) {
+        setReceiptImage(uploadData.url);
+      }
+
+      if (!parseRes.ok || !parseData.data) {
+        setScanError(parseData.error ?? "No se pudo analizar la factura");
+        return;
+      }
+
+      const d = parseData.data;
+      if (d.title)    setTitle(d.title);
+      if (d.date)     setDate(d.date);
+      if (d.category) setCategory(d.category as ExpenseCategory);
+      if (d.notes)    setNotes(d.notes);
+      if (Array.isArray(d.items) && d.items.length > 0) {
+        setItems(d.items.map((it: { description: string; amount: number }) => ({
+          description: it.description,
+          amount:      String(it.amount),
+        })));
+      }
+    } catch {
+      setScanError("Error de conexión al analizar la imagen");
+    } finally {
+      setScanning(false);
+      if (scanInputRef.current) scanInputRef.current.value = "";
     }
   }
 
@@ -89,6 +144,39 @@ export default function ExpenseForm({ onSave, onCancel, saving }: ExpenseFormPro
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* ── Escanear con IA ── */}
+      <div>
+        <button
+          type="button"
+          onClick={() => scanInputRef.current?.click()}
+          disabled={scanning}
+          className="w-full border-2 border-dashed border-brand-pink/40 hover:border-brand-pink rounded-xl py-4 flex items-center justify-center gap-2.5 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed bg-brand-pink/5 hover:bg-brand-pink/10"
+        >
+          {scanning ? (
+            <>
+              <Loader2 className="w-5 h-5 text-brand-pink animate-spin" />
+              <span className="text-sm font-semibold text-brand-pink">Analizando factura con IA...</span>
+            </>
+          ) : (
+            <>
+              <ScanLine className="w-5 h-5 text-brand-pink" />
+              <span className="text-sm font-semibold text-brand-pink">Escanear factura con IA</span>
+              <span className="text-xs text-brand-dark/40 font-normal">· llena el formulario automáticamente</span>
+            </>
+          )}
+        </button>
+        <input
+          ref={scanInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="hidden"
+          onChange={handleScanFile}
+        />
+        {scanError && (
+          <p className="mt-1.5 text-xs text-red-500">{scanError}</p>
+        )}
+      </div>
+
       {/* Título */}
       <div>
         <label className="block text-sm font-medium text-brand-dark mb-1">Título de la factura *</label>
