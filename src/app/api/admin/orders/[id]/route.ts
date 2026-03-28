@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
+import { Product } from "@/models/Product";
 import { getSession } from "@/lib/auth";
 
 export async function PATCH(
@@ -28,6 +29,20 @@ export async function DELETE(
 
   const { id } = await params;
   await connectToDatabase();
+
+  // Restore stock before deleting
+  const order = await Order.findById(id).lean() as { items?: { productId: string; quantity: number }[] } | null;
+  if (order?.items?.length) {
+    await Product.bulkWrite(
+      order.items.map((item) => ({
+        updateOne: {
+          filter: { _id: item.productId },
+          update: { $inc: { stock: item.quantity } },
+        },
+      }))
+    );
+  }
+
   await Order.findByIdAndDelete(id);
   return NextResponse.json({ ok: true });
 }

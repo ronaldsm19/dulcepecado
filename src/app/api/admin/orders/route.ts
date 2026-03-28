@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { Order } from "@/models/Order";
+import { Product } from "@/models/Product";
 import { getSession } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
@@ -42,6 +43,18 @@ export async function POST(request: NextRequest) {
     quantity:    items[0]?.quantity    ?? 1,
     options:     items[0]?.itemToppings?.flat() ?? [],
   });
+
+  // Decrement stock for each item — floor at 0, never negative
+  if (items.length > 0) {
+    await Product.bulkWrite(
+      items.map((item: { productId: string; quantity: number }) => ({
+        updateOne: {
+          filter: { _id: item.productId },
+          update: [{ $set: { stock: { $max: [0, { $subtract: ["$stock", item.quantity] }] } } }],
+        },
+      }))
+    );
+  }
 
   return NextResponse.json({ order }, { status: 201 });
 }
