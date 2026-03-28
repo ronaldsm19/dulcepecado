@@ -125,7 +125,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <Button
               variant="outline"
               size="sm"
-              onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); }}
+              onClick={(e) => { e.stopPropagation(); trackClick(product._id); setIsModalOpen(true); }}
             >
               Ver más
             </Button>
