@@ -12,12 +12,16 @@ import {
   LogOut,
   X,
   Warehouse,
+  FlaskConical,
+  ChefHat,
 } from "lucide-react";
 
 const navItems = [
   { href: "/admin",                label: "Dashboard",     icon: LayoutDashboard },
   { href: "/admin/productos",      label: "Productos",     icon: Package },
   { href: "/admin/inventario",     label: "Inventario",    icon: Warehouse },
+  { href: "/admin/materia-prima",  label: "Materia Prima", icon: FlaskConical },
+  { href: "/admin/recetas",        label: "Recetas",       icon: ChefHat },
   { href: "/admin/pedidos",        label: "Pedidos",       icon: ShoppingBag },
   { href: "/admin/gastos",         label: "Gastos",        icon: Receipt },
   { href: "/admin/finanzas",       label: "Finanzas",      icon: TrendingUp },
