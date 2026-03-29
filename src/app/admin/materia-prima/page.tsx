@@ -298,87 +298,118 @@ export default function MateriaPrimaPage() {
         </form>
       )}
 
-      {/* Table */}
+      {/* List */}
       {loading ? (
         <p className="text-brand-dark/40 text-sm">Cargando...</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-brand-dark/40 text-sm text-center py-8">No hay ítems registrados. Hacé clic en "+ Nuevo ítem" para agregar.</p>
       ) : (
-        <div className="bg-white rounded-2xl card-shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[640px]">
+        <>
+          {/* ── Mobile cards (< lg) ─────────────────────────────── */}
+          <div className="lg:hidden space-y-3">
+            {filtered.map((row) => (
+              <div key={row._id} className="bg-white rounded-2xl card-shadow px-4 py-3 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-brand-dark truncate">{row.name}</p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${TYPE_COLORS[row.type] ?? "bg-gray-50 text-gray-500"}`}>
+                        {TYPE_LABELS[row.type] ?? row.type}
+                      </span>
+                      <span className="text-xs text-brand-dark/40">{row.unit} · ₡{row.unitCost.toLocaleString("es-CR")}/u</span>
+                    </div>
+                    {row.notes && <p className="text-xs text-brand-dark/30 mt-0.5 truncate">{row.notes}</p>}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => setEditFull(row)} className="p-1.5 rounded-lg text-brand-dark/30 hover:text-brand-pink hover:bg-brand-muted cursor-pointer">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    {confirmDel === row._id ? (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleDelete(row._id)} className="px-2 py-1 rounded-lg bg-red-500 text-white text-xs cursor-pointer">Sí</button>
+                        <button onClick={() => setConfirmDel(null)} className="px-2 py-1 rounded-lg bg-brand-muted text-brand-dark/60 text-xs cursor-pointer">No</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmDel(row._id)} className="p-1.5 rounded-lg text-brand-dark/30 hover:text-red-500 hover:bg-red-50 cursor-pointer">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-1 border-t border-brand-muted/50">
+                  <span className="text-xs text-brand-dark/40">Stock actual</span>
+                  {editingId === row._id ? (
+                    <div className="flex items-center gap-1.5">
+                      <input ref={stockInputRef} type="number" min={0} step="any"
+                        value={editStock} onChange={(e) => setEditStock(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleSaveStock(row._id); if (e.key === "Escape") setEditingId(null); }}
+                        className="w-16 border border-brand-pink rounded-lg px-2 py-1 text-sm focus:outline-none" />
+                      <button onClick={() => handleSaveStock(row._id)} className="p-1 rounded-lg text-emerald-600 hover:bg-emerald-50 cursor-pointer"><Check className="w-4 h-4" /></button>
+                      <button onClick={() => setEditingId(null)} className="p-1 rounded-lg text-brand-dark/40 hover:bg-brand-muted cursor-pointer"><X className="w-4 h-4" /></button>
+                    </div>
+                  ) : (
+                    <button onClick={() => { setEditingId(row._id); setEditStock(String(row.quantity)); }}
+                      className={`px-3 py-1 rounded-full text-sm font-bold cursor-pointer hover:opacity-70 transition-opacity ${
+                        row.quantity === 0 ? "bg-red-50 text-red-500" : row.quantity <= 2 ? "bg-yellow-50 text-amber-600" : "bg-emerald-50 text-emerald-600"
+                      }`}>
+                      {row.quantity} {row.unit}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── Desktop table (lg+) ─────────────────────────────── */}
+          <div className="hidden lg:block bg-white rounded-2xl card-shadow overflow-hidden">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-brand-muted text-brand-dark/50 text-xs uppercase tracking-wider">
-                  <th className="text-left px-4 py-3">Nombre</th>
-                  <th className="text-left px-4 py-3">Tipo</th>
-                  <th className="text-left px-4 py-3">Unidad</th>
-                  <th className="text-left px-4 py-3">Stock</th>
-                  <th className="text-left px-4 py-3">Costo unit.</th>
-                  <th className="text-left px-4 py-3">Valor total</th>
-                  <th className="text-left px-4 py-3">Notas</th>
-                  <th className="text-left px-4 py-3">Acciones</th>
+                  <th className="text-left px-5 py-3">Nombre</th>
+                  <th className="text-left px-5 py-3">Tipo</th>
+                  <th className="text-left px-5 py-3">Unidad</th>
+                  <th className="text-left px-5 py-3">Stock</th>
+                  <th className="text-left px-5 py-3">Costo unit.</th>
+                  <th className="text-left px-5 py-3">Valor total</th>
+                  <th className="text-left px-5 py-3">Notas</th>
+                  <th className="text-left px-5 py-3">Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-brand-dark/40">
-                      No hay ítems registrados. Hacé clic en "+ Nuevo ítem" para agregar.
-                    </td>
-                  </tr>
-                ) : filtered.map((row) => (
+                {filtered.map((row) => (
                   <tr key={row._id} className="border-b border-brand-muted/50 hover:bg-brand-muted/20 transition-colors">
-                    <td className="px-4 py-3 font-medium text-brand-dark">{row.name}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3 font-medium text-brand-dark">{row.name}</td>
+                    <td className="px-5 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[row.type] ?? "bg-gray-50 text-gray-500"}`}>
                         {TYPE_LABELS[row.type] ?? row.type}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-brand-dark/60">{row.unit}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3 text-brand-dark/60">{row.unit}</td>
+                    <td className="px-5 py-3">
                       {editingId === row._id ? (
                         <div className="flex items-center gap-1.5">
-                          <input
-                            ref={stockInputRef}
-                            type="number" min={0} step="any"
-                            value={editStock}
-                            onChange={(e) => setEditStock(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleSaveStock(row._id);
-                              if (e.key === "Escape") setEditingId(null);
-                            }}
-                            className="w-20 border border-brand-pink rounded-lg px-2 py-1 text-sm focus:outline-none"
-                          />
-                          <button onClick={() => handleSaveStock(row._id)} className="p-1 rounded-lg text-emerald-600 hover:bg-emerald-50 cursor-pointer">
-                            <Check className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => setEditingId(null)} className="p-1 rounded-lg text-brand-dark/40 hover:bg-brand-muted cursor-pointer">
-                            <X className="w-4 h-4" />
-                          </button>
+                          <input ref={stockInputRef} type="number" min={0} step="any"
+                            value={editStock} onChange={(e) => setEditStock(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === "Enter") handleSaveStock(row._id); if (e.key === "Escape") setEditingId(null); }}
+                            className="w-20 border border-brand-pink rounded-lg px-2 py-1 text-sm focus:outline-none" />
+                          <button onClick={() => handleSaveStock(row._id)} className="p-1 rounded-lg text-emerald-600 hover:bg-emerald-50 cursor-pointer"><Check className="w-4 h-4" /></button>
+                          <button onClick={() => setEditingId(null)} className="p-1 rounded-lg text-brand-dark/40 hover:bg-brand-muted cursor-pointer"><X className="w-4 h-4" /></button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => { setEditingId(row._id); setEditStock(String(row.quantity)); }}
+                        <button onClick={() => { setEditingId(row._id); setEditStock(String(row.quantity)); }}
                           className={`px-2.5 py-0.5 rounded-full text-xs font-semibold cursor-pointer hover:opacity-70 transition-opacity ${
-                            row.quantity === 0 ? "bg-red-50 text-red-500"
-                            : row.quantity <= 2 ? "bg-yellow-50 text-amber-600"
-                            : "bg-emerald-50 text-emerald-600"
-                          }`}
-                        >
+                            row.quantity === 0 ? "bg-red-50 text-red-500" : row.quantity <= 2 ? "bg-yellow-50 text-amber-600" : "bg-emerald-50 text-emerald-600"
+                          }`}>
                           {row.quantity}
                         </button>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-brand-dark/70">₡{row.unitCost.toLocaleString("es-CR")}</td>
-                    <td className="px-4 py-3 text-brand-dark/60">
-                      {row.quantity > 0 ? `₡${(row.quantity * row.unitCost).toLocaleString("es-CR")}` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-brand-dark/40 text-xs max-w-[140px] truncate">{row.notes || "—"}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-5 py-3 text-brand-dark/70">₡{row.unitCost.toLocaleString("es-CR")}</td>
+                    <td className="px-5 py-3 text-brand-dark/60">{row.quantity > 0 ? `₡${(row.quantity * row.unitCost).toLocaleString("es-CR")}` : "—"}</td>
+                    <td className="px-5 py-3 text-brand-dark/40 text-xs max-w-[160px] truncate">{row.notes || "—"}</td>
+                    <td className="px-5 py-3">
                       <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setEditFull(row)}
-                          className="p-1.5 rounded-lg text-brand-dark/40 hover:text-brand-pink hover:bg-brand-muted transition-colors cursor-pointer"
-                          title="Editar"
-                        >
+                        <button onClick={() => setEditFull(row)} className="p-1.5 rounded-lg text-brand-dark/40 hover:text-brand-pink hover:bg-brand-muted cursor-pointer" title="Editar">
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
                         {confirmDel === row._id ? (
@@ -387,11 +418,7 @@ export default function MateriaPrimaPage() {
                             <button onClick={() => setConfirmDel(null)} className="px-2 py-1 rounded-lg bg-brand-muted text-brand-dark/60 text-xs cursor-pointer">No</button>
                           </div>
                         ) : (
-                          <button
-                            onClick={() => setConfirmDel(row._id)}
-                            className="p-1.5 rounded-lg text-brand-dark/40 hover:text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-                            title="Eliminar"
-                          >
+                          <button onClick={() => setConfirmDel(row._id)} className="p-1.5 rounded-lg text-brand-dark/40 hover:text-red-500 hover:bg-red-50 cursor-pointer" title="Eliminar">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
@@ -402,7 +429,7 @@ export default function MateriaPrimaPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
